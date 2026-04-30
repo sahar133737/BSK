@@ -24,6 +24,7 @@ namespace BGSK1.UI
             form.BackColor = Surface;
             form.Font = new Font("Segoe UI", 10f);
             form.StartPosition = FormStartPosition.CenterParent;
+            form.Load += (s, e) => ApplyMinimalistTheme(form);
         }
 
         public static void StyleButton(Button button, Color backColor)
@@ -49,6 +50,84 @@ namespace BGSK1.UI
             grid.DefaultCellStyle.SelectionBackColor = Color.FromArgb(207, 228, 249);
             grid.DefaultCellStyle.SelectionForeColor = Text;
             grid.DefaultCellStyle.BackColor = Color.White;
+        }
+
+        public static void ApplyMinimalistTheme(Control root)
+        {
+            if (root is Form form)
+            {
+                form.BackColor = Surface;
+                form.ForeColor = Text;
+            }
+
+            foreach (Control child in root.Controls)
+            {
+                if (child is DataGridView grid)
+                {
+                    StyleGrid(grid);
+                }
+                else if (child is GroupBox group)
+                {
+                    group.ForeColor = Text;
+                    group.BackColor = Color.White;
+                    group.Padding = new Padding(10);
+                }
+                else if (child is Panel panel)
+                {
+                    if (panel.Dock != DockStyle.Left && panel.Dock != DockStyle.Top)
+                    {
+                        panel.BackColor = Surface;
+                    }
+                }
+                else if (child is Label label)
+                {
+                    label.ForeColor = IsDarkBackground(label.Parent?.BackColor ?? Surface) ? Color.White : Text;
+                }
+                else if (child is TextBox textBox)
+                {
+                    textBox.BorderStyle = BorderStyle.FixedSingle;
+                    textBox.BackColor = Color.White;
+                    textBox.ForeColor = Text;
+                }
+                else if (child is ComboBox comboBox)
+                {
+                    comboBox.BackColor = Color.White;
+                    comboBox.ForeColor = Text;
+                    comboBox.FlatStyle = FlatStyle.Flat;
+                }
+                else if (child is DateTimePicker datePicker)
+                {
+                    datePicker.CalendarForeColor = Text;
+                    datePicker.CalendarMonthBackground = Color.White;
+                }
+                else if (child is NumericUpDown numeric)
+                {
+                    numeric.BackColor = Color.White;
+                    numeric.ForeColor = Text;
+                }
+                else if (child is CheckBox checkBox)
+                {
+                    checkBox.ForeColor = IsDarkBackground(checkBox.Parent?.BackColor ?? Surface) ? Color.White : Text;
+                }
+                else if (child is Button button)
+                {
+                    if (button.BackColor == SystemColors.Control || button.BackColor == default(Color))
+                    {
+                        StyleButton(button, Primary);
+                    }
+                }
+
+                if (child.HasChildren)
+                {
+                    ApplyMinimalistTheme(child);
+                }
+            }
+        }
+
+        private static bool IsDarkBackground(Color color)
+        {
+            var brightness = (0.299 * color.R) + (0.587 * color.G) + (0.114 * color.B);
+            return brightness < 140;
         }
     }
 }

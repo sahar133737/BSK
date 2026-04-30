@@ -53,13 +53,13 @@ namespace BGSK1
             sidebar.Controls.Add(user);
 
             AddMenuButton(sidebar, "Техника", 20, 120, 290, ThemeHelper.Primary, "module.equipment", () => OpenModule(new EquipmentForm()));
-            AddMenuButton(sidebar, "Заявки на ремонт", 20, 176, 290, ThemeHelper.Secondary, "module.requests", () => OpenModule(new RequestsForm()));
-            AddMenuButton(sidebar, "Плановое ТО", 20, 232, 290, Color.FromArgb(27, 111, 173), "module.maintenance", () => OpenModule(new MaintenanceForm()));
-            AddMenuButton(sidebar, "Склад запчастей", 20, 288, 290, ThemeHelper.Success, "module.parts", () => OpenModule(new PartsForm()));
-            AddMenuButton(sidebar, "Отчеты", 20, 344, 290, Color.FromArgb(24, 88, 146), "module.reports", () => OpenModule(new ReportsCenterForm()));
-            AddMenuButton(sidebar, "Бэкапы", 20, 400, 290, ThemeHelper.Accent, "module.backups", () => OpenModule(new BackupForm()));
-            AddMenuButton(sidebar, "Пользователи", 20, 456, 290, Color.FromArgb(46, 131, 201), "module.users", () => OpenModule(new UserManagementForm()));
-            AddMenuButton(sidebar, "Администрирование прав", 20, 512, 290, ThemeHelper.Danger, "module.admin", () => OpenModule(new AdminPermissionsForm()));
+            AddMenuButton(sidebar, "Заявки на ремонт", 20, 176, 290, ThemeHelper.Primary, "module.requests", () => OpenModule(new RequestsForm()));
+            AddMenuButton(sidebar, "Плановое ТО", 20, 232, 290, ThemeHelper.Primary, "module.maintenance", () => OpenModule(new MaintenanceForm()));
+            AddMenuButton(sidebar, "Склад запчастей", 20, 288, 290, ThemeHelper.Primary, "module.parts", () => OpenModule(new PartsForm()));
+            AddMenuButton(sidebar, "Отчеты", 20, 344, 290, ThemeHelper.Primary, "module.reports", () => OpenModule(new ReportsCenterForm()));
+            AddMenuButton(sidebar, "Бэкапы", 20, 400, 290, ThemeHelper.Primary, "module.backups", () => OpenModule(new BackupForm()));
+            AddMenuButton(sidebar, "Пользователи", 20, 456, 290, ThemeHelper.Primary, "module.users", () => OpenModule(new UserManagementForm()));
+            AddMenuButton(sidebar, "Администрирование прав", 20, 512, 290, ThemeHelper.Secondary, "module.admin", () => OpenModule(new AdminPermissionsForm()));
 
             var pageTitle = new Label
             {

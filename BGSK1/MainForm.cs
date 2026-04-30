@@ -7,6 +7,7 @@ using System.IO;
 using System.Windows.Forms;
 using BGSK1.Security;
 using BGSK1.Services;
+using BGSK1.UI;
 
 namespace BGSK1
 {
@@ -67,9 +68,9 @@ namespace BGSK1
             Text = "ИС учета ремонта и обслуживания компьютерной техники - ГБПОУ БСК";
             WindowState = FormWindowState.Maximized;
             Font = new Font("Segoe UI", 10f);
-            BackColor = Color.FromArgb(246, 248, 252);
+            BackColor = ThemeHelper.Surface;
 
-            var header = new Panel { Dock = DockStyle.Top, Height = 56, BackColor = Color.FromArgb(15, 23, 42) };
+            var header = new Panel { Dock = DockStyle.Top, Height = 56, BackColor = ThemeHelper.DarkBg };
             _lblUser = new Label { Left = 14, Top = 17, ForeColor = Color.White, AutoSize = true, Font = new Font("Segoe UI Semibold", 10f, FontStyle.Bold) };
             header.Controls.Add(_lblUser);
 
@@ -86,11 +87,12 @@ namespace BGSK1
             Controls.Add(_tabs);
             Controls.Add(header);
             Load += MainForm_Load;
+            Load += (s, e) => ThemeHelper.ApplyMinimalistTheme(this);
         }
 
         private static TabPage Page(string title)
         {
-            return new TabPage(title) { Name = title, BackColor = Color.White, Padding = new Padding(10) };
+            return new TabPage(title) { Name = title, BackColor = ThemeHelper.Surface, Padding = new Padding(10) };
         }
 
         private static DataGridView CreateGrid()
@@ -108,14 +110,7 @@ namespace BGSK1
                 BackgroundColor = Color.White,
                 BorderStyle = BorderStyle.None
             };
-
-            grid.EnableHeadersVisualStyles = false;
-            grid.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(241, 245, 249);
-            grid.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI Semibold", 10f, FontStyle.Bold);
-            grid.ColumnHeadersDefaultCellStyle.ForeColor = Color.FromArgb(30, 41, 59);
-            grid.DefaultCellStyle.SelectionBackColor = Color.FromArgb(219, 234, 254);
-            grid.DefaultCellStyle.SelectionForeColor = Color.FromArgb(15, 23, 42);
-            grid.DefaultCellStyle.ForeColor = Color.FromArgb(15, 23, 42);
+            ThemeHelper.StyleGrid(grid);
             return grid;
         }
 
@@ -126,7 +121,7 @@ namespace BGSK1
                 Dock = DockStyle.Top,
                 Height = 128,
                 Text = "  " + title + "  ",
-                ForeColor = Color.FromArgb(30, 41, 59),
+                ForeColor = ThemeHelper.Text,
                 Font = new Font("Segoe UI Semibold", 10f, FontStyle.Bold),
                 Padding = new Padding(10)
             };
@@ -134,7 +129,7 @@ namespace BGSK1
 
         private static Label L(string text, int left, int top, int width)
         {
-            return new Label { Text = text, Left = left, Top = top, Width = width, ForeColor = Color.FromArgb(51, 65, 85) };
+            return new Label { Text = text, Left = left, Top = top, Width = width, ForeColor = ThemeHelper.MutedText };
         }
 
         private TabPage CreateEquipmentTab(out TextBox txtInv, out TextBox txtName, out TextBox txtType, out TextBox txtLoc, out TextBox txtResp, out TextBox txtSearch, out DataGridView grid)
@@ -366,8 +361,8 @@ namespace BGSK1
         {
             var p = Page("Отчеты");
             var top = new Panel { Dock = DockStyle.Top, Height = 122 };
-            lblTitle = new Label { Left = 10, Top = 8, Width = 800, Font = new Font("Segoe UI Semibold", 12f, FontStyle.Bold), ForeColor = Color.FromArgb(30, 41, 59) };
-            lblDescription = new Label { Left = 10, Top = 34, Width = 1100, Height = 36, ForeColor = Color.FromArgb(71, 85, 105) };
+            lblTitle = new Label { Left = 10, Top = 8, Width = 800, Font = new Font("Segoe UI Semibold", 12f, FontStyle.Bold), ForeColor = ThemeHelper.Text };
+            lblDescription = new Label { Left = 10, Top = 34, Width = 1100, Height = 36, ForeColor = ThemeHelper.MutedText };
 
             var btnOpenRequests = new Button { Text = "Открытые заявки", Left = 10, Top = 76, Width = 145, Height = 30 };
             var btnOverdue = new Button { Text = "Просроченное ТО", Left = 160, Top = 76, Width = 145, Height = 30 };
@@ -1047,19 +1042,19 @@ namespace BGSK1
             var status = (_gridRequests.Rows[e.RowIndex].Cells["StatusName"].Value ?? string.Empty).ToString();
             if (status == "Новая")
             {
-                e.CellStyle.BackColor = Color.FromArgb(254, 240, 138);
+                e.CellStyle.BackColor = Color.FromArgb(236, 245, 255);
             }
             else if (status == "В работе")
             {
-                e.CellStyle.BackColor = Color.FromArgb(191, 219, 254);
+                e.CellStyle.BackColor = Color.FromArgb(221, 236, 252);
             }
             else if (status == "Ожидание")
             {
-                e.CellStyle.BackColor = Color.FromArgb(224, 231, 255);
+                e.CellStyle.BackColor = Color.FromArgb(243, 247, 253);
             }
             else if (status == "Завершена")
             {
-                e.CellStyle.BackColor = Color.FromArgb(187, 247, 208);
+                e.CellStyle.BackColor = Color.FromArgb(226, 242, 235);
             }
         }
 

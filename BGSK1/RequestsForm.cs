@@ -180,10 +180,10 @@ namespace BGSK1
             }
 
             var status = (_gridRequests.Rows[e.RowIndex].Cells["StatusName"].Value ?? string.Empty).ToString();
-            if (status == "Новая") e.CellStyle.BackColor = System.Drawing.Color.FromArgb(254, 240, 138);
-            else if (status == "В работе") e.CellStyle.BackColor = System.Drawing.Color.FromArgb(191, 219, 254);
-            else if (status == "Ожидание") e.CellStyle.BackColor = System.Drawing.Color.FromArgb(224, 231, 255);
-            else if (status == "Завершена") e.CellStyle.BackColor = System.Drawing.Color.FromArgb(187, 247, 208);
+            if (status == "Новая") e.CellStyle.BackColor = System.Drawing.Color.FromArgb(236, 245, 255);
+            else if (status == "В работе") e.CellStyle.BackColor = System.Drawing.Color.FromArgb(221, 236, 252);
+            else if (status == "Ожидание") e.CellStyle.BackColor = System.Drawing.Color.FromArgb(243, 247, 253);
+            else if (status == "Завершена") e.CellStyle.BackColor = System.Drawing.Color.FromArgb(226, 242, 235);
         }
 
         private void BtnCreateRequest_Click(object sender, EventArgs e)
