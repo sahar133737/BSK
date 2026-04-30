@@ -1,0 +1,65 @@
+using System;
+using System.Configuration;
+using System.Data;
+using System.Data.SqlClient;
+
+namespace BGSK1.Infrastructure
+{
+    internal static class Db
+    {
+        public static string MasterConnectionString =>
+            ConfigurationManager.ConnectionStrings["MasterConnection"].ConnectionString;
+
+        public static string AppConnectionString =>
+            ConfigurationManager.ConnectionStrings["AppConnection"].ConnectionString;
+
+        public static object ExecuteScalar(string sql, params SqlParameter[] parameters)
+        {
+            using (var connection = new SqlConnection(AppConnectionString))
+            using (var command = new SqlCommand(sql, connection))
+            {
+                if (parameters != null)
+                {
+                    command.Parameters.AddRange(parameters);
+                }
+
+                connection.Open();
+                return command.ExecuteScalar();
+            }
+        }
+
+        public static int ExecuteNonQuery(string sql, params SqlParameter[] parameters)
+        {
+            using (var connection = new SqlConnection(AppConnectionString))
+            using (var command = new SqlCommand(sql, connection))
+            {
+                if (parameters != null)
+                {
+                    command.Parameters.AddRange(parameters);
+                }
+
+                connection.Open();
+                return command.ExecuteNonQuery();
+            }
+        }
+
+        public static DataTable ExecuteDataTable(string sql, params SqlParameter[] parameters)
+        {
+            using (var connection = new SqlConnection(AppConnectionString))
+            using (var command = new SqlCommand(sql, connection))
+            {
+                if (parameters != null)
+                {
+                    command.Parameters.AddRange(parameters);
+                }
+
+                using (var adapter = new SqlDataAdapter(command))
+                {
+                    var table = new DataTable();
+                    adapter.Fill(table);
+                    return table;
+                }
+            }
+        }
+    }
+}
