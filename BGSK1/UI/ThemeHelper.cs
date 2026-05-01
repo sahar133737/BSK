@@ -5,6 +5,25 @@ namespace BGSK1.UI
 {
     internal static class ThemeHelper
     {
+        /// <summary>Высота подписи поля; фиксированная, чтобы текст не наезжал на TextBox.</summary>
+        public const int FormFieldLabelHeight = 20;
+
+        /// <summary>Подпись над полем ввода: одна строка, без перекрытия контрола снизу.</summary>
+        public static Label FormFieldLabel(string text, int left, int top, int width, Color? foreColor = null)
+        {
+            return new Label
+            {
+                Text = text,
+                Left = left,
+                Top = top,
+                Width = width,
+                Height = FormFieldLabelHeight,
+                AutoSize = false,
+                TextAlign = ContentAlignment.MiddleLeft,
+                ForeColor = foreColor ?? MutedText
+            };
+        }
+
         // Palette aligned with the college website style: deep blue + light surfaces.
         public static readonly Color DarkBg = Color.FromArgb(10, 52, 96);
         public static readonly Color PanelBg = Color.FromArgb(15, 67, 125);

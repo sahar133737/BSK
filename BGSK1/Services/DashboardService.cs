@@ -23,9 +23,30 @@ namespace BGSK1.Services
             return value == null ? 0 : System.Convert.ToInt32(value);
         }
 
+        /// <summary>На минимальном или критически низком остатке (остаток ≤ минимально допустимого).</summary>
         public static int GetLowStockCount()
         {
             var value = Db.ExecuteScalar("SELECT COUNT(*) FROM dbo.SpareParts WHERE QuantityInStock <= MinQuantity;");
+            return value == null ? 0 : System.Convert.ToInt32(value);
+        }
+
+        /// <summary>
+        /// Ещё выше минимума, но близко к нему («скоро закончатся»): остаток в пределах зоны опережения.
+        /// Не включает позиции из <see cref="GetLowStockCount"/>.
+        /// </summary>
+        public static int GetLowStockSoonCount()
+        {
+            const string sql = @"
+SELECT COUNT(*)
+FROM dbo.SpareParts
+WHERE QuantityInStock > MinQuantity
+  AND QuantityInStock <= MinQuantity +
+        CASE
+            WHEN MinQuantity <= 0 THEN 2
+            WHEN MinQuantity <= 5 THEN MinQuantity + 2
+            ELSE (MinQuantity / 6) + 3
+        END;";
+            var value = Db.ExecuteScalar(sql);
             return value == null ? 0 : System.Convert.ToInt32(value);
         }
 

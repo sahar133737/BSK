@@ -129,27 +129,27 @@ namespace BGSK1
 
         private static Label L(string text, int left, int top, int width)
         {
-            return new Label { Text = text, Left = left, Top = top, Width = width, ForeColor = ThemeHelper.MutedText };
+            return ThemeHelper.FormFieldLabel(text, left, top, width);
         }
 
         private TabPage CreateEquipmentTab(out TextBox txtInv, out TextBox txtName, out TextBox txtType, out TextBox txtLoc, out TextBox txtResp, out TextBox txtSearch, out DataGridView grid)
         {
             var p = Page("Техника");
             var card = CreateCard("Карточка техники");
-            txtInv = new TextBox { Left = 20, Top = 45, Width = 150 };
-            txtName = new TextBox { Left = 180, Top = 45, Width = 260 };
-            txtType = new TextBox { Left = 450, Top = 45, Width = 160 };
-            txtLoc = new TextBox { Left = 620, Top = 45, Width = 180 };
-            txtResp = new TextBox { Left = 810, Top = 45, Width = 180 };
-            var add = new Button { Left = 1000, Top = 42, Width = 120, Height = 30, Text = "Добавить" };
-            var upd = new Button { Left = 1128, Top = 42, Width = 120, Height = 30, Text = "Обновить" };
+            txtInv = new TextBox { Left = 20, Top = 48, Width = 150 };
+            txtName = new TextBox { Left = 180, Top = 48, Width = 260 };
+            txtType = new TextBox { Left = 450, Top = 48, Width = 160 };
+            txtLoc = new TextBox { Left = 620, Top = 48, Width = 180 };
+            txtResp = new TextBox { Left = 810, Top = 48, Width = 180 };
+            var add = new Button { Left = 1000, Top = 46, Width = 120, Height = 30, Text = "Добавить" };
+            var upd = new Button { Left = 1128, Top = 46, Width = 120, Height = 30, Text = "Обновить" };
             add.Click += BtnAddEquipment_Click;
             upd.Click += BtnUpdateEquipment_Click;
 
             card.Controls.AddRange(new Control[]
             {
-                L("Инв. номер", 20, 24, 150), L("Наименование", 180, 24, 260), L("Тип", 450, 24, 160),
-                L("Локация", 620, 24, 180), L("Ответственный", 810, 24, 180),
+                L("Инв. номер", 20, 20, 150), L("Наименование", 180, 20, 260), L("Тип", 450, 20, 160),
+                L("Локация", 620, 20, 180), L("Ответственный", 810, 20, 180),
                 txtInv, txtName, txtType, txtLoc, txtResp, add, upd
             });
 
@@ -169,7 +169,7 @@ namespace BGSK1
                     { "WarrantyUntil", "Гарантия до" }, { "StatusName", "Статус" }
                 });
             };
-            searchPanel.Controls.AddRange(new Control[] { L("Поиск:", 12, -2, 55), txtSearch, btnSearch, btnReset });
+            searchPanel.Controls.AddRange(new Control[] { L("Поиск:", 12, 10, 55), txtSearch, btnSearch, btnReset });
 
             grid = CreateGrid();
             grid.SelectionChanged += GridEquipment_SelectionChanged;
@@ -192,26 +192,26 @@ namespace BGSK1
         {
             var p = Page("Заявки на ремонт");
             var card = CreateCard("Карточка заявки на ремонт");
-            cmbEquipment = new ComboBox { Left = 20, Top = 45, Width = 260, DropDownStyle = ComboBoxStyle.DropDownList };
-            txtProblem = new TextBox { Left = 290, Top = 45, Width = 380 };
-            cmbPriority = new ComboBox { Left = 680, Top = 45, Width = 120, DropDownStyle = ComboBoxStyle.DropDownList };
+            cmbEquipment = new ComboBox { Left = 20, Top = 48, Width = 260, DropDownStyle = ComboBoxStyle.DropDownList };
+            txtProblem = new TextBox { Left = 290, Top = 48, Width = 380 };
+            cmbPriority = new ComboBox { Left = 680, Top = 48, Width = 120, DropDownStyle = ComboBoxStyle.DropDownList };
             cmbPriority.Items.AddRange(new[] { "Низкий", "Средний", "Высокий" });
             cmbPriority.SelectedIndex = 1;
-            cmbStatus = new ComboBox { Left = 810, Top = 45, Width = 120, DropDownStyle = ComboBoxStyle.DropDownList };
+            cmbStatus = new ComboBox { Left = 810, Top = 48, Width = 120, DropDownStyle = ComboBoxStyle.DropDownList };
             cmbStatus.Items.AddRange(new[] { "Новая", "В работе", "Ожидание", "Завершена" });
             cmbStatus.SelectedIndex = 0;
-            txtAssigned = new TextBox { Left = 940, Top = 45, Width = 160 };
-            var create = new Button { Left = 1110, Top = 42, Width = 95, Height = 30, Text = "Создать" };
-            var update = new Button { Left = 1210, Top = 42, Width = 95, Height = 30, Text = "Обновить" };
-            var close = new Button { Left = 1310, Top = 42, Width = 95, Height = 30, Text = "Закрыть" };
+            txtAssigned = new TextBox { Left = 940, Top = 48, Width = 160 };
+            var create = new Button { Left = 1110, Top = 46, Width = 95, Height = 30, Text = "Создать" };
+            var update = new Button { Left = 1210, Top = 46, Width = 95, Height = 30, Text = "Обновить" };
+            var close = new Button { Left = 1310, Top = 46, Width = 95, Height = 30, Text = "Закрыть" };
             create.Click += BtnCreateRequest_Click;
             update.Click += BtnUpdateRequest_Click;
             close.Click += BtnCloseRequest_Click;
 
             card.Controls.AddRange(new Control[]
             {
-                L("Техника", 20, 24, 260), L("Описание неисправности", 290, 24, 380),
-                L("Приоритет", 680, 24, 120), L("Статус", 810, 24, 120), L("Исполнитель", 940, 24, 160),
+                L("Техника", 20, 20, 260), L("Описание неисправности", 290, 20, 380),
+                L("Приоритет", 680, 20, 120), L("Статус", 810, 20, 120), L("Исполнитель", 940, 20, 160),
                 cmbEquipment, txtProblem, cmbPriority, cmbStatus, txtAssigned, create, update, close
             });
 
@@ -253,23 +253,23 @@ namespace BGSK1
         {
             var p = Page("Плановое ТО");
             var card = CreateCard("Карточка планового обслуживания");
-            cmbEquipment = new ComboBox { Left = 20, Top = 45, Width = 260, DropDownStyle = ComboBoxStyle.DropDownList };
-            txtType = new TextBox { Left = 290, Top = 45, Width = 200 };
-            numPeriod = new NumericUpDown { Left = 500, Top = 45, Width = 110, Minimum = 1, Maximum = 365, Value = 30 };
-            dtNext = new DateTimePicker { Left = 620, Top = 45, Width = 170 };
-            txtResp = new TextBox { Left = 800, Top = 45, Width = 190 };
-            chkActive = new CheckBox { Left = 1000, Top = 48, Width = 80, Text = "Активен", Checked = true };
-            var add = new Button { Left = 1084, Top = 42, Width = 100, Height = 30, Text = "Добавить" };
-            var update = new Button { Left = 1188, Top = 42, Width = 100, Height = 30, Text = "Обновить" };
-            var done = new Button { Left = 1292, Top = 42, Width = 110, Height = 30, Text = "Отметить" };
+            cmbEquipment = new ComboBox { Left = 20, Top = 48, Width = 260, DropDownStyle = ComboBoxStyle.DropDownList };
+            txtType = new TextBox { Left = 290, Top = 48, Width = 200 };
+            numPeriod = new NumericUpDown { Left = 500, Top = 48, Width = 110, Minimum = 1, Maximum = 365, Value = 30 };
+            dtNext = new DateTimePicker { Left = 620, Top = 48, Width = 170 };
+            txtResp = new TextBox { Left = 800, Top = 48, Width = 190 };
+            chkActive = new CheckBox { Left = 1000, Top = 51, Width = 80, Text = "Активен", Checked = true };
+            var add = new Button { Left = 1084, Top = 46, Width = 100, Height = 30, Text = "Добавить" };
+            var update = new Button { Left = 1188, Top = 46, Width = 100, Height = 30, Text = "Обновить" };
+            var done = new Button { Left = 1292, Top = 46, Width = 110, Height = 30, Text = "Отметить" };
             add.Click += BtnAddPlan_Click;
             update.Click += BtnUpdatePlan_Click;
             done.Click += BtnDonePlan_Click;
 
             card.Controls.AddRange(new Control[]
             {
-                L("Техника", 20, 24, 260), L("Вид ТО", 290, 24, 200), L("Период (дн.)", 500, 24, 110),
-                L("Следующая дата", 620, 24, 170), L("Ответственный", 800, 24, 190),
+                L("Техника", 20, 20, 260), L("Вид ТО", 290, 20, 200), L("Период (дн.)", 500, 20, 110),
+                L("Следующая дата", 620, 20, 170), L("Ответственный", 800, 20, 190),
                 cmbEquipment, txtType, numPeriod, dtNext, txtResp, chkActive, add, update, done
             });
 
@@ -279,7 +279,7 @@ namespace BGSK1
             var btnSearch = new Button { Left = 546, Top = 9, Width = 100, Height = 28, Text = "Поиск" };
             btnSearch.Click += (s, e) => ApplyMaintenanceFilter();
             chkOverdue.CheckedChanged += (s, e) => ApplyMaintenanceFilter();
-            filterPanel.Controls.AddRange(new Control[] { chkOverdue, L("Поиск:", 280, -2, 60), txtSearch, btnSearch });
+            filterPanel.Controls.AddRange(new Control[] { chkOverdue, L("Поиск:", 280, 10, 60), txtSearch, btnSearch });
 
             grid = CreateGrid();
             grid.SelectionChanged += GridMaintenance_SelectionChanged;
@@ -293,20 +293,20 @@ namespace BGSK1
         {
             var p = Page("Склад запчастей");
             var card = CreateCard("Карточка запчасти");
-            txtName = new TextBox { Left = 20, Top = 45, Width = 300 };
-            txtNumber = new TextBox { Left = 330, Top = 45, Width = 180 };
-            numQty = new NumericUpDown { Left = 520, Top = 45, Width = 120, Minimum = 0, Maximum = 100000, Value = 1 };
-            numMin = new NumericUpDown { Left = 650, Top = 45, Width = 120, Minimum = 0, Maximum = 100000, Value = 1 };
-            var add = new Button { Left = 780, Top = 42, Width = 120, Height = 30, Text = "Добавить" };
-            var update = new Button { Left = 908, Top = 42, Width = 120, Height = 30, Text = "Обновить" };
-            var writeOff = new Button { Left = 1036, Top = 42, Width = 150, Height = 30, Text = "Списать 1 ед." };
+            txtName = new TextBox { Left = 20, Top = 48, Width = 300 };
+            txtNumber = new TextBox { Left = 330, Top = 48, Width = 180 };
+            numQty = new NumericUpDown { Left = 520, Top = 48, Width = 120, Minimum = 0, Maximum = 100000, Value = 1 };
+            numMin = new NumericUpDown { Left = 650, Top = 48, Width = 120, Minimum = 0, Maximum = 100000, Value = 1 };
+            var add = new Button { Left = 780, Top = 46, Width = 120, Height = 30, Text = "Добавить" };
+            var update = new Button { Left = 908, Top = 46, Width = 120, Height = 30, Text = "Обновить" };
+            var writeOff = new Button { Left = 1036, Top = 46, Width = 150, Height = 30, Text = "Списать 1 ед." };
             add.Click += BtnAddPart_Click;
             update.Click += BtnUpdatePart_Click;
             writeOff.Click += BtnWriteOffPart_Click;
 
             card.Controls.AddRange(new Control[]
             {
-                L("Наименование", 20, 24, 300), L("Артикул", 330, 24, 180), L("Количество", 520, 24, 120), L("Мин. остаток", 650, 24, 120),
+                L("Наименование", 20, 20, 300), L("Артикул", 330, 20, 180), L("Количество", 520, 20, 120), L("Мин. остаток", 650, 20, 120),
                 txtName, txtNumber, numQty, numMin, add, update, writeOff
             });
 
@@ -316,7 +316,7 @@ namespace BGSK1
             var btnSearch = new Button { Left = 614, Top = 9, Width = 100, Height = 28, Text = "Поиск" };
             btnSearch.Click += (s, e) => ApplyPartFilter();
             chkLowStock.CheckedChanged += (s, e) => ApplyPartFilter();
-            filterPanel.Controls.AddRange(new Control[] { chkLowStock, L("Поиск:", 348, -2, 60), txtSearch, btnSearch });
+            filterPanel.Controls.AddRange(new Control[] { chkLowStock, L("Поиск:", 348, 10, 60), txtSearch, btnSearch });
 
             grid = CreateGrid();
             grid.SelectionChanged += GridParts_SelectionChanged;
@@ -343,14 +343,21 @@ namespace BGSK1
         {
             var p = Page("Резервные копии");
             var card = CreateCard("Управление резервными копиями");
-            txtPath = new TextBox { Left = 20, Top = 45, Width = 580, Text = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups") };
-            var create = new Button { Text = "Создать бэкап", Left = 610, Top = 42, Width = 130, Height = 30 };
-            var restore = new Button { Text = "Восстановить", Left = 748, Top = 42, Width = 130, Height = 30 };
-            var export = new Button { Text = "Экспорт аудита", Left = 886, Top = 42, Width = 130, Height = 30 };
+            txtPath = new TextBox { Left = 20, Top = 48, Width = 620, Text = BackupService.GetDefaultBackupFilePath() };
+            var pathInput = txtPath;
+            var btnFile = new Button { Text = "Файл…", Left = 646, Top = 46, Width = 90, Height = 30 };
+            var fileMenu = new ContextMenuStrip();
+            fileMenu.Items.Add("Путь для новой копии…", null, (_, __) => PickBackupSaveFile(pathInput));
+            fileMenu.Items.Add("Открыть .bak…", null, (_, __) => PickBackupOpenFile(pathInput));
+            ThemeHelper.StyleButton(btnFile, ThemeHelper.Secondary);
+            btnFile.Click += (_, __) => fileMenu.Show(btnFile, new Point(0, btnFile.Height));
+            var create = new Button { Text = "Создать бэкап", Left = 744, Top = 46, Width = 120, Height = 30 };
+            var restore = new Button { Text = "Восстановить", Left = 870, Top = 46, Width = 120, Height = 30 };
+            var export = new Button { Text = "Экспорт аудита", Left = 996, Top = 46, Width = 130, Height = 30 };
             create.Click += BtnCreateBackup_Click;
             restore.Click += BtnRestoreBackup_Click;
             export.Click += BtnExportAudit_Click;
-            card.Controls.AddRange(new Control[] { L("Путь хранения .bak", 20, 24, 580), txtPath, create, restore, export });
+            card.Controls.AddRange(new Control[] { L("Путь к файлу .bak", 20, 20, 620), txtPath, btnFile, create, restore, export });
             grid = CreateGrid();
             p.Controls.Add(grid);
             p.Controls.Add(card);
@@ -479,7 +486,7 @@ namespace BGSK1
                 {
                     { "InventoryNumber", "Инв. номер" }, { "EquipmentName", "Оборудование" }, { "MaintenanceType", "Вид ТО" },
                     { "NextDate", "Следующее ТО" }, { "ResponsiblePerson", "Ответственный" }
-                });
+                }, "IsActive");
                 return;
             }
 
@@ -498,9 +505,8 @@ namespace BGSK1
             ConfigureGrid(_gridMaintenance, new Dictionary<string, string>
             {
                 { "InventoryNumber", "Инв. номер" }, { "EquipmentName", "Оборудование" }, { "MaintenanceType", "Вид ТО" },
-                { "PeriodDays", "Период (дни)" }, { "NextDate", "Следующее ТО" }, { "ResponsiblePerson", "Ответственный" },
-                { "IsActive", "Активен" }
-            });
+                { "PeriodDays", "Период (дни)" }, { "NextDate", "Следующее ТО" }, { "ResponsiblePerson", "Ответственный" }
+            }, "IsActive");
         }
 
         private void ApplyPartFilter()
@@ -566,9 +572,8 @@ namespace BGSK1
             ConfigureGrid(_gridMaintenance, new Dictionary<string, string>
             {
                 { "InventoryNumber", "Инв. номер" }, { "EquipmentName", "Оборудование" }, { "MaintenanceType", "Вид ТО" },
-                { "PeriodDays", "Период (дни)" }, { "NextDate", "Следующее ТО" }, { "ResponsiblePerson", "Ответственный" },
-                { "IsActive", "Активен" }
-            });
+                { "PeriodDays", "Период (дни)" }, { "NextDate", "Следующее ТО" }, { "ResponsiblePerson", "Ответственный" }
+            }, "IsActive");
 
             ConfigureGrid(_gridParts, new Dictionary<string, string>
             {
@@ -596,7 +601,7 @@ namespace BGSK1
             });
         }
 
-        private static void ConfigureGrid(DataGridView grid, Dictionary<string, string> headers)
+        private static void ConfigureGrid(DataGridView grid, Dictionary<string, string> headers, params string[] hideColumns)
         {
             if (grid.DataSource == null)
             {
@@ -606,6 +611,14 @@ namespace BGSK1
             if (grid.Columns.Contains("Id"))
             {
                 grid.Columns["Id"].Visible = false;
+            }
+
+            foreach (var name in hideColumns)
+            {
+                if (!string.IsNullOrEmpty(name) && grid.Columns.Contains(name))
+                {
+                    grid.Columns[name].Visible = false;
+                }
             }
 
             if (headers != null)
@@ -653,17 +666,60 @@ namespace BGSK1
             return map;
         }
 
+        private static void PickBackupSaveFile(TextBox txtPath)
+        {
+            using (var dialog = new SaveFileDialog())
+            {
+                dialog.Filter = "Файлы резервных копий (*.bak)|*.bak";
+                dialog.FileName = string.IsNullOrWhiteSpace(txtPath.Text)
+                    ? "BGSK1_manual.bak"
+                    : Path.GetFileName(txtPath.Text);
+                var dir = Path.GetDirectoryName(txtPath.Text);
+                dialog.InitialDirectory = !string.IsNullOrEmpty(dir) && Directory.Exists(dir)
+                    ? dir
+                    : BackupService.GetRecommendedBackupDirectory();
+                if (dialog.ShowDialog() == DialogResult.OK)
+                {
+                    txtPath.Text = dialog.FileName;
+                }
+            }
+        }
+
+        private static void PickBackupOpenFile(TextBox txtPath)
+        {
+            using (var dialog = new OpenFileDialog())
+            {
+                dialog.Filter = "Файлы резервных копий (*.bak)|*.bak";
+                dialog.FileName = string.IsNullOrWhiteSpace(txtPath.Text)
+                    ? string.Empty
+                    : Path.GetFileName(txtPath.Text);
+                var dir = Path.GetDirectoryName(txtPath.Text);
+                dialog.InitialDirectory = !string.IsNullOrEmpty(dir) && Directory.Exists(dir)
+                    ? dir
+                    : BackupService.GetRecommendedBackupDirectory();
+                if (dialog.ShowDialog() == DialogResult.OK)
+                {
+                    txtPath.Text = dialog.FileName;
+                }
+            }
+        }
+
         private void BtnCreateBackup_Click(object sender, EventArgs e)
         {
             RunAction(() =>
             {
-                var backupDirectory = _txtBackupPath.Text.Trim();
-                if (string.IsNullOrWhiteSpace(backupDirectory))
+                var backupPath = _txtBackupPath.Text.Trim();
+                if (string.IsNullOrWhiteSpace(backupPath))
                 {
-                    throw new Exception("Укажите путь для сохранения резервных копий.");
+                    throw new Exception("Укажите путь к файлу резервной копии.");
                 }
 
-                BackupService.CreateBackup(backupDirectory, "Ручной запуск из интерфейса", false);
+                if (!backupPath.EndsWith(".bak", StringComparison.OrdinalIgnoreCase))
+                {
+                    backupPath += ".bak";
+                }
+
+                BackupService.CreateBackupToFile(backupPath, "Ручной запуск из интерфейса", false);
                 _gridBackups.DataSource = BackupService.GetBackups();
                 ConfigureGrid(_gridBackups, new Dictionary<string, string>
                 {

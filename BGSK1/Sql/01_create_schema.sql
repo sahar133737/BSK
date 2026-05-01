@@ -295,6 +295,20 @@ BEGIN
 END
 GO
 
+IF OBJECT_ID('dbo.LookupDictionary', 'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.LookupDictionary
+    (
+        Id INT IDENTITY(1,1) PRIMARY KEY,
+        Category NVARCHAR(50) NOT NULL,
+        Value NVARCHAR(200) NOT NULL,
+        CreatedAt DATETIME2 NOT NULL DEFAULT(SYSUTCDATETIME()),
+        CONSTRAINT UQ_LookupDictionary_Category_Value UNIQUE (Category, Value)
+    );
+    CREATE INDEX IX_LookupDictionary_Category ON dbo.LookupDictionary(Category);
+END
+GO
+
 IF OBJECT_ID('dbo.MaintenanceHistory', 'U') IS NULL
 BEGIN
     CREATE TABLE dbo.MaintenanceHistory

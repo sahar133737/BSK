@@ -26,16 +26,16 @@ namespace BGSK1
                 Shown += (s, e) => { MessageBox.Show("Нет доступа к модулю пользователей.", "Доступ запрещен", MessageBoxButtons.OK, MessageBoxIcon.Warning); Close(); };
             }
 
-            var card = new GroupBox { Dock = DockStyle.Top, Height = 120, Text = "  Карточка пользователя  " };
-            _txtEmail = new TextBox { Left = 12, Top = 45, Width = 210 };
-            _txtFullName = new TextBox { Left = 226, Top = 45, Width = 250 };
-            _cmbRole = new ComboBox { Left = 480, Top = 45, Width = 150, DropDownStyle = ComboBoxStyle.DropDownList };
-            _chkActive = new CheckBox { Left = 634, Top = 49, Width = 90, Text = "Активен", Checked = true };
-            _txtPassword = new TextBox { Left = 728, Top = 45, Width = 150, PasswordChar = '*' };
-            var btnCreate = new Button { Left = 884, Top = 42, Width = 80, Height = 30, Text = "Создать" };
-            var btnUpdate = new Button { Left = 968, Top = 42, Width = 85, Height = 30, Text = "Обновить" };
-            var btnDelete = new Button { Left = 1057, Top = 42, Width = 80, Height = 30, Text = "Удалить" };
-            var btnResetPass = new Button { Left = 884, Top = 76, Width = 253, Height = 28, Text = "Сброс пароля" };
+            var card = new GroupBox { Dock = DockStyle.Top, Height = 124, Text = "  Карточка пользователя  " };
+            _txtEmail = new TextBox { Left = 12, Top = 48, Width = 210 };
+            _txtFullName = new TextBox { Left = 226, Top = 48, Width = 250 };
+            _cmbRole = new ComboBox { Left = 480, Top = 48, Width = 150, DropDownStyle = ComboBoxStyle.DropDownList };
+            _chkActive = new CheckBox { Left = 634, Top = 51, Width = 90, Text = "Активен", Checked = true };
+            _txtPassword = new TextBox { Left = 728, Top = 48, Width = 150, PasswordChar = '*' };
+            var btnCreate = new Button { Left = 884, Top = 46, Width = 80, Height = 30, Text = "Создать" };
+            var btnUpdate = new Button { Left = 968, Top = 46, Width = 85, Height = 30, Text = "Обновить" };
+            var btnDelete = new Button { Left = 1057, Top = 46, Width = 80, Height = 30, Text = "Удалить" };
+            var btnResetPass = new Button { Left = 884, Top = 80, Width = 253, Height = 28, Text = "Сброс пароля" };
             ThemeHelper.StyleButton(btnCreate, ThemeHelper.Primary);
             ThemeHelper.StyleButton(btnUpdate, ThemeHelper.Secondary);
             ThemeHelper.StyleButton(btnDelete, ThemeHelper.Danger);
@@ -46,7 +46,7 @@ namespace BGSK1
             btnResetPass.Click += BtnResetPass_Click;
             card.Controls.AddRange(new Control[]
             {
-                LabelAt("Email",12,27,210), LabelAt("ФИО",226,27,250), LabelAt("Роль",480,27,150), LabelAt("Новый пароль",728,27,150),
+                LabelAt("Email",12,20,210), LabelAt("ФИО",226,20,250), LabelAt("Роль",480,20,150), LabelAt("Новый пароль",728,20,150),
                 _txtEmail, _txtFullName, _cmbRole, _chkActive, _txtPassword, btnCreate, btnUpdate, btnDelete, btnResetPass
             });
 
@@ -124,8 +124,25 @@ namespace BGSK1
                 MessageBox.Show("Заполните email и пароль.", "Валидация", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-            UserService.CreateUser(_txtEmail.Text.Trim(), _txtFullName.Text.Trim(), Convert.ToInt32(_cmbRole.SelectedValue), _txtPassword.Text);
-            LoadData();
+            if (!UserService.IsValidEmail(_txtEmail.Text))
+            {
+                MessageBox.Show("Введите корректный email (пример: user@domain.ru).", "Валидация", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            if (!UserService.IsStrongPassword(_txtPassword.Text))
+            {
+                MessageBox.Show("Пароль: минимум 8 символов, цифра, строчная и заглавная буква.", "Валидация", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            try
+            {
+                UserService.CreateUser(_txtEmail.Text.Trim(), _txtFullName.Text.Trim(), Convert.ToInt32(_cmbRole.SelectedValue), _txtPassword.Text);
+                LoadData();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
         }
 
         private void BtnUpdate_Click(object sender, EventArgs e)
@@ -134,9 +151,21 @@ namespace BGSK1
             {
                 return;
             }
-            var id = Convert.ToInt32(_grid.CurrentRow.Cells["Id"].Value);
-            UserService.UpdateUser(id, _txtEmail.Text.Trim(), _txtFullName.Text.Trim(), Convert.ToInt32(_cmbRole.SelectedValue), _chkActive.Checked);
-            LoadData();
+            if (!UserService.IsValidEmail(_txtEmail.Text))
+            {
+                MessageBox.Show("Введите корректный email.", "Валидация", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            try
+            {
+                var id = Convert.ToInt32(_grid.CurrentRow.Cells["Id"].Value);
+                UserService.UpdateUser(id, _txtEmail.Text.Trim(), _txtFullName.Text.Trim(), Convert.ToInt32(_cmbRole.SelectedValue), _chkActive.Checked);
+                LoadData();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
         }
 
         private void BtnDelete_Click(object sender, EventArgs e)
@@ -145,9 +174,16 @@ namespace BGSK1
             {
                 return;
             }
-            var id = Convert.ToInt32(_grid.CurrentRow.Cells["Id"].Value);
-            UserService.SoftDeleteUser(id);
-            LoadData();
+            try
+            {
+                var id = Convert.ToInt32(_grid.CurrentRow.Cells["Id"].Value);
+                UserService.SoftDeleteUser(id);
+                LoadData();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
         }
 
         private void BtnResetPass_Click(object sender, EventArgs e)
@@ -157,14 +193,26 @@ namespace BGSK1
                 MessageBox.Show("Выберите пользователя и укажите новый пароль.", "Валидация", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-            var id = Convert.ToInt32(_grid.CurrentRow.Cells["Id"].Value);
-            UserService.ForceResetPassword(id, _txtPassword.Text);
-            MessageBox.Show("Пароль сброшен.", "Готово", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            if (!UserService.IsStrongPassword(_txtPassword.Text))
+            {
+                MessageBox.Show("Пароль: минимум 8 символов, цифра, строчная и заглавная буква.", "Валидация", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            try
+            {
+                var id = Convert.ToInt32(_grid.CurrentRow.Cells["Id"].Value);
+                UserService.ForceResetPassword(id, _txtPassword.Text);
+                MessageBox.Show("Пароль сброшен.", "Готово", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
         }
 
         private static Label LabelAt(string text, int left, int top, int width)
         {
-            return new Label { Text = text, Left = left, Top = top, Width = width };
+            return ThemeHelper.FormFieldLabel(text, left, top, width);
         }
     }
 }

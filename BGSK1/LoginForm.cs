@@ -83,6 +83,12 @@ namespace BGSK1
             var password = _txtPassword.Text;
             var ip = "127.0.0.1";
 
+            if (!UserService.IsValidEmail(email))
+            {
+                _lblError.Text = "Введите корректный email.";
+                return;
+            }
+
             if (AuthService.TryLogin(email, password, ip, out var error))
             {
                 DialogResult = DialogResult.OK;

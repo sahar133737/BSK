@@ -1,6 +1,5 @@
 using System;
 using System.Drawing;
-using System.IO;
 using System.Windows.Forms;
 using BGSK1.Security;
 using BGSK1.Services;
@@ -10,16 +9,15 @@ namespace BGSK1
 {
     public sealed class MainMenuForm : Form
     {
+        private static bool _partsStockNotificationShown;
+
         private readonly Label _lblEquipmentCount;
         private readonly Label _lblOpenRequestsCount;
         private readonly Label _lblOverdueCount;
         private readonly Label _lblLowStockCount;
+        private readonly ToolTip _lowStockKpiTip = new ToolTip { AutomaticDelay = 350 };
         private readonly DataGridView _gridRecentRequests;
-        private readonly TextBox _txtQuickInventory;
-        private readonly TextBox _txtQuickEquipmentName;
-        private readonly ComboBox _cmbQuickEquipment;
-        private readonly TextBox _txtQuickProblem;
-        private readonly TextBox _txtQuickBackupPath;
+        private readonly Label _lblLowStockAlert;
 
         public MainMenuForm()
         {
@@ -107,7 +105,7 @@ namespace BGSK1
                 Left = 16,
                 Top = 214,
                 Width = 990,
-                Height = 122,
+                Height = 132,
                 BackColor = ThemeHelper.Surface,
                 BorderStyle = BorderStyle.FixedSingle
             };
@@ -122,36 +120,50 @@ namespace BGSK1
             };
             quickPanel.Controls.Add(quickTitle);
 
-            _cmbQuickEquipment = new ComboBox { Left = 12, Top = 34, Width = 238, DropDownStyle = ComboBoxStyle.DropDownList };
-            _txtQuickProblem = new TextBox { Left = 256, Top = 34, Width = 230 };
-            var btnQuickRequest = new Button { Left = 492, Top = 32, Width = 160, Height = 28, Text = "Создать заявку" };
+            var btnQuickRequest = new Button { Left = 12, Top = 40, Width = 220, Height = 32, Text = "Открыть модуль заявок" };
             ThemeHelper.StyleButton(btnQuickRequest, ThemeHelper.Primary);
-            btnQuickRequest.Click += BtnQuickRequest_Click;
+            btnQuickRequest.Click += (s, e) => OpenModule(new RequestsForm());
 
-            _txtQuickInventory = new TextBox { Left = 12, Top = 78, Width = 145 };
-            _txtQuickEquipmentName = new TextBox { Left = 163, Top = 78, Width = 220 };
-            var btnQuickEquipment = new Button { Left = 389, Top = 76, Width = 160, Height = 28, Text = "Добавить технику" };
+            var btnQuickEquipment = new Button { Left = 238, Top = 40, Width = 220, Height = 32, Text = "Открыть модуль техники" };
             ThemeHelper.StyleButton(btnQuickEquipment, ThemeHelper.Secondary);
-            btnQuickEquipment.Click += BtnQuickEquipment_Click;
+            btnQuickEquipment.Click += (s, e) => OpenModule(new EquipmentForm());
 
-            _txtQuickBackupPath = new TextBox { Left = 658, Top = 34, Width = 230, Text = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Backups") };
-            var btnQuickBackup = new Button { Left = 894, Top = 32, Width = 88, Height = 28, Text = "Бэкап" };
+            var btnQuickBackup = new Button { Left = 464, Top = 40, Width = 220, Height = 32, Text = "Открыть модуль бэкапов" };
             ThemeHelper.StyleButton(btnQuickBackup, ThemeHelper.Accent);
-            btnQuickBackup.Click += BtnQuickBackup_Click;
+            btnQuickBackup.Click += (s, e) => OpenModule(new BackupForm());
+
+            var btnQuickMaintenance = new Button { Left = 690, Top = 40, Width = 140, Height = 32, Text = "Плановое ТО" };
+            ThemeHelper.StyleButton(btnQuickMaintenance, ThemeHelper.Primary);
+            btnQuickMaintenance.Click += (s, e) => OpenModule(new MaintenanceForm());
+
+            var btnQuickParts = new Button { Left = 836, Top = 40, Width = 146, Height = 32, Text = "Запчасти" };
+            ThemeHelper.StyleButton(btnQuickParts, ThemeHelper.Secondary);
+            btnQuickParts.Click += (s, e) => OpenModule(new PartsForm());
 
             quickPanel.Controls.AddRange(new Control[]
             {
-                LabelInline("Техника", 12, 60, 120), LabelInline("Инв. номер", 12, 104, 120), LabelInline("Наименование", 163, 104, 120),
-                LabelInline("Неисправность", 256, 60, 120), LabelInline("Путь бэкапа", 658, 60, 120),
-                _cmbQuickEquipment, _txtQuickProblem, btnQuickRequest, _txtQuickInventory, _txtQuickEquipmentName, btnQuickEquipment,
-                _txtQuickBackupPath, btnQuickBackup
+                LabelInline("Создание записей выполняется внутри модулей.", 12, 82, 430),
+                btnQuickRequest, btnQuickEquipment, btnQuickBackup, btnQuickMaintenance, btnQuickParts
             });
             content.Controls.Add(quickPanel);
+
+            _lblLowStockAlert = new Label
+            {
+                Left = 16,
+                Top = 342,
+                Width = 990,
+                Height = 56,
+                ForeColor = ThemeHelper.Danger,
+                Font = new Font("Segoe UI Semibold", 9.5f, FontStyle.Bold),
+                Visible = false,
+                AutoSize = false
+            };
+            content.Controls.Add(_lblLowStockAlert);
 
             var recentTitle = new Label
             {
                 Left = 16,
-                Top = 344,
+                Top = 404,
                 Width = 520,
                 Height = 24,
                 Font = new Font("Segoe UI Semibold", 11f, FontStyle.Bold),
@@ -163,9 +175,9 @@ namespace BGSK1
             _gridRecentRequests = new DataGridView
             {
                 Left = 16,
-                Top = 370,
+                Top = 432,
                 Width = 990,
-                Height = 408,
+                Height = 386,
                 ReadOnly = true,
                 AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
                 RowHeadersVisible = false,
@@ -211,26 +223,99 @@ namespace BGSK1
             var equipmentCount = DashboardService.GetEquipmentCount();
             var openCount = DashboardService.GetOpenRequestsCount();
             var overdueCount = DashboardService.GetOverdueMaintenanceCount();
-            var lowStockCount = DashboardService.GetLowStockCount();
+            var lowStockCritical = DashboardService.GetLowStockCount();
+            var lowStockSoon = DashboardService.GetLowStockSoonCount();
 
             _lblEquipmentCount.Text = equipmentCount.ToString();
             _lblOpenRequestsCount.Text = openCount.ToString();
             _lblOverdueCount.Text = overdueCount.ToString();
-            _lblLowStockCount.Text = lowStockCount.ToString();
+            _lblLowStockCount.Text = lowStockCritical.ToString();
             SetKpiSeverity(_lblEquipmentCount, false);
             SetKpiSeverity(_lblOpenRequestsCount, false);
             SetKpiSeverity(_lblOverdueCount, overdueCount > 0);
-            SetKpiSeverity(_lblLowStockCount, lowStockCount > 0);
+            SetLowStockKpiLook(lowStockCritical, lowStockSoon);
 
             _gridRecentRequests.DataSource = DashboardService.GetRecentRequests();
             GridHeaderMap.Apply(_gridRecentRequests, "dashboardRecentRequests");
 
-            if (RolePermissionService.HasPermission("module.requests"))
+            ApplyPartsStockAlerts(lowStockCritical, lowStockSoon);
+
+        }
+
+        private void ApplyPartsStockAlerts(int criticalCount, int soonCount)
+        {
+            if (criticalCount > 0)
             {
-                _cmbQuickEquipment.DataSource = EquipmentService.GetEquipmentLookup();
-                _cmbQuickEquipment.DisplayMember = "DisplayName";
-                _cmbQuickEquipment.ValueMember = "Id";
+                _lblLowStockAlert.Visible = true;
+                _lblLowStockAlert.ForeColor = ThemeHelper.Danger;
+                var text = $"Критично или на минимуме: {criticalCount} поз. Рекомендуется пополнить склад немедленно.";
+                if (soonCount > 0)
+                {
+                    text += Environment.NewLine + $"Низкий запас («скоро минимум»): ещё {soonCount} поз. Закажите заранее.";
+                }
+
+                _lblLowStockAlert.Text = text;
             }
+            else if (soonCount > 0)
+            {
+                _lblLowStockAlert.Visible = true;
+                _lblLowStockAlert.ForeColor = ThemeHelper.Accent;
+                _lblLowStockAlert.Text = $"На складе {soonCount} поз. с низким остатком — минимальный порог недалеко, рекомендуется запланировать закупку.";
+            }
+            else
+            {
+                _lblLowStockAlert.Visible = false;
+                _lblLowStockAlert.Text = string.Empty;
+            }
+
+            if ((criticalCount > 0 || soonCount > 0) && !_partsStockNotificationShown)
+            {
+                _partsStockNotificationShown = true;
+                var dlgTitle = "Запасы запчастей";
+                string dlgText;
+                if (criticalCount > 0 && soonCount > 0)
+                {
+                    dlgText = $"На складе: {criticalCount} поз. на минимуме или ниже, и {soonCount} поз. с низким остатком (скоро минимум). Откройте модуль «Склад запчастей» для деталей.";
+                }
+                else if (criticalCount > 0)
+                {
+                    dlgText = $"На складе {criticalCount} поз. на минимальном или недостаточном остатке. Рекомендуется пополнение.";
+                }
+                else
+                {
+                    dlgText = $"На складе {soonCount} поз. с приближением к минимальному остатку — заранее спланируйте закупку.";
+                }
+
+                BeginInvoke(new Action(() =>
+                    MessageBox.Show(this, dlgText, dlgTitle, MessageBoxButtons.OK,
+                        criticalCount > 0 ? MessageBoxIcon.Warning : MessageBoxIcon.Information)));
+            }
+        }
+
+        private void SetLowStockKpiLook(int criticalCount, int soonCount)
+        {
+            string tip = string.Empty;
+            if (criticalCount > 0 && soonCount > 0)
+            {
+                tip = $"На минимуме или ниже: {criticalCount}. Приближаются к минимуму: {soonCount}.";
+                SetKpiSeverity(_lblLowStockCount, true);
+            }
+            else if (criticalCount > 0)
+            {
+                tip = $"На минимуме или ниже: {criticalCount}.";
+                SetKpiSeverity(_lblLowStockCount, true);
+            }
+            else if (soonCount > 0)
+            {
+                tip = $"На минимуме: 0. Приближаются к минимуму и требуют планового пополнения: {soonCount}.";
+                _lblLowStockCount.ForeColor = ThemeHelper.Accent;
+            }
+            else
+            {
+                SetKpiSeverity(_lblLowStockCount, false);
+            }
+
+            _lowStockKpiTip.SetToolTip(_lblLowStockCount, tip);
         }
 
         private void OpenModule(Form moduleForm)
@@ -267,66 +352,6 @@ namespace BGSK1
             panel.Controls.Add(lblValue);
             parent.Controls.Add(panel, colIndex, 0);
             return lblValue;
-        }
-
-        private void BtnQuickRequest_Click(object sender, EventArgs e)
-        {
-            if (!RolePermissionService.HasPermission("module.requests"))
-            {
-                MessageBox.Show("Нет прав на создание заявок.", "Доступ запрещен", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            if (_cmbQuickEquipment.SelectedValue == null || string.IsNullOrWhiteSpace(_txtQuickProblem.Text))
-            {
-                MessageBox.Show("Выберите технику и укажите неисправность.", "Валидация", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            RepairRequestService.CreateRequest(Convert.ToInt32(_cmbQuickEquipment.SelectedValue), _txtQuickProblem.Text.Trim(), "Средний", string.Empty);
-            _txtQuickProblem.Clear();
-            RefreshDashboard();
-            MessageBox.Show("Заявка создана.", "Готово", MessageBoxButtons.OK, MessageBoxIcon.Information);
-        }
-
-        private void BtnQuickEquipment_Click(object sender, EventArgs e)
-        {
-            if (!RolePermissionService.HasPermission("module.equipment"))
-            {
-                MessageBox.Show("Нет прав на добавление техники.", "Доступ запрещен", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            if (string.IsNullOrWhiteSpace(_txtQuickInventory.Text) || string.IsNullOrWhiteSpace(_txtQuickEquipmentName.Text))
-            {
-                MessageBox.Show("Укажите инвентарный номер и наименование.", "Валидация", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            EquipmentService.AddEquipment(_txtQuickInventory.Text.Trim(), _txtQuickEquipmentName.Text.Trim(), string.Empty, string.Empty, string.Empty);
-            _txtQuickInventory.Clear();
-            _txtQuickEquipmentName.Clear();
-            RefreshDashboard();
-            MessageBox.Show("Техника добавлена.", "Готово", MessageBoxButtons.OK, MessageBoxIcon.Information);
-        }
-
-        private void BtnQuickBackup_Click(object sender, EventArgs e)
-        {
-            if (!RolePermissionService.HasPermission("module.backups"))
-            {
-                MessageBox.Show("Нет прав на создание бэкапа.", "Доступ запрещен", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            if (string.IsNullOrWhiteSpace(_txtQuickBackupPath.Text))
-            {
-                MessageBox.Show("Укажите путь для сохранения бэкапа.", "Валидация", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            BackupService.CreateBackup(_txtQuickBackupPath.Text.Trim(), "Быстрое действие из главного меню", false);
-            RefreshDashboard();
-            MessageBox.Show("Резервная копия создана.", "Готово", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private static Label LabelInline(string text, int left, int top, int width)

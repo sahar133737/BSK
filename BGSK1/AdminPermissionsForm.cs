@@ -14,7 +14,7 @@ namespace BGSK1
 
         public AdminPermissionsForm()
         {
-            ThemeHelper.ApplyForm(this, "Администрирование прав");
+            ThemeHelper.ApplyForm(this, "Настройка ролей и прав доступа");
             Width = 900;
             Height = 620;
             if (!RolePermissionService.HasPermission("module.admin"))
@@ -24,13 +24,11 @@ namespace BGSK1
 
             var top = new Panel { Dock = DockStyle.Top, Height = 52 };
             _cmbRoles = new ComboBox { Left = 12, Top = 12, Width = 260, DropDownStyle = ComboBoxStyle.DropDownList };
-            var btnLoad = new Button { Left = 278, Top = 10, Width = 120, Height = 30, Text = "Загрузить" };
-            var btnSave = new Button { Left = 404, Top = 10, Width = 120, Height = 30, Text = "Сохранить" };
-            ThemeHelper.StyleButton(btnLoad, ThemeHelper.Secondary);
+            var btnSave = new Button { Left = 278, Top = 10, Width = 180, Height = 30, Text = "Сохранить права" };
             ThemeHelper.StyleButton(btnSave, ThemeHelper.Success);
-            btnLoad.Click += (s, e) => LoadPermissions();
             btnSave.Click += BtnSave_Click;
-            top.Controls.AddRange(new Control[] { _cmbRoles, btnLoad, btnSave });
+            _cmbRoles.SelectedIndexChanged += (s, e) => LoadPermissions();
+            top.Controls.AddRange(new Control[] { _cmbRoles, btnSave });
 
             _grid = new DataGridView
             {
@@ -77,8 +75,19 @@ namespace BGSK1
             }
 
             _grid.DataSource = table;
-            if (_grid.Columns.Contains("PermissionKey")) _grid.Columns["PermissionKey"].HeaderText = "Ключ права";
+            if (_grid.Columns.Contains("PermissionKey"))
+            {
+                foreach (DataGridViewRow row in _grid.Rows)
+                {
+                    if (row.IsNewRow) continue;
+                    var key = row.Cells["PermissionKey"].Value?.ToString() ?? string.Empty;
+                    row.Cells["PermissionKey"].Value = ToRussianPermissionName(key);
+                    row.Tag = key;
+                }
+            }
+            if (_grid.Columns.Contains("PermissionKey")) _grid.Columns["PermissionKey"].HeaderText = "Раздел";
             if (_grid.Columns.Contains("IsAllowed")) _grid.Columns["IsAllowed"].HeaderText = "Разрешено";
+            if (_grid.Columns.Contains("PermissionKey")) _grid.Columns["PermissionKey"].ReadOnly = true;
         }
 
         private void BtnSave_Click(object sender, EventArgs e)
@@ -96,7 +105,7 @@ namespace BGSK1
                     continue;
                 }
 
-                var key = row.Cells["PermissionKey"]?.Value?.ToString();
+                var key = row.Tag?.ToString();
                 var allowed = Convert.ToBoolean(row.Cells["IsAllowed"]?.Value ?? false);
                 if (!string.IsNullOrWhiteSpace(key))
                 {
@@ -105,6 +114,22 @@ namespace BGSK1
             }
 
             MessageBox.Show("Права сохранены.", "Готово", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private static string ToRussianPermissionName(string key)
+        {
+            switch (key)
+            {
+                case "module.equipment": return "Техника";
+                case "module.requests": return "Заявки";
+                case "module.maintenance": return "Плановое ТО";
+                case "module.parts": return "Склад запчастей";
+                case "module.reports": return "Отчеты";
+                case "module.backups": return "Резервные копии";
+                case "module.users": return "Пользователи";
+                case "module.admin": return "Настройка ролей и прав";
+                default: return key;
+            }
         }
     }
 }

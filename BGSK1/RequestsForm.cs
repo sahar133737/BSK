@@ -14,7 +14,7 @@ namespace BGSK1
         private readonly TextBox _txtProblem;
         private readonly ComboBox _cmbPriority;
         private readonly ComboBox _cmbStatus;
-        private readonly TextBox _txtAssigned;
+        private readonly ComboBox _cmbAssigned;
         private readonly ComboBox _cmbFilterStatus;
         private readonly TextBox _txtSearch;
         private readonly ComboBox _cmbRequest;
@@ -26,35 +26,39 @@ namespace BGSK1
             ThemeHelper.ApplyForm(this, "Заявки на ремонт");
             Width = 1280;
             Height = 760;
+            MinimumSize = new System.Drawing.Size(1100, 680);
             if (!RolePermissionService.HasPermission("module.requests"))
             {
                 Shown += (s, e) => { MessageBox.Show("Нет доступа к модулю.", "Доступ запрещен", MessageBoxButtons.OK, MessageBoxIcon.Warning); Close(); };
             }
 
-            var card = new GroupBox { Dock = DockStyle.Top, Height = 118, Text = "  Карточка заявки  " };
-            _cmbEquipment = new ComboBox { Left = 12, Top = 45, Width = 230, DropDownStyle = ComboBoxStyle.DropDownList };
-            _txtProblem = new TextBox { Left = 248, Top = 45, Width = 310 };
-            _cmbPriority = new ComboBox { Left = 564, Top = 45, Width = 110, DropDownStyle = ComboBoxStyle.DropDownList };
+            var card = new GroupBox { Dock = DockStyle.Top, Height = 124, Text = "  Карточка заявки  " };
+            _cmbEquipment = new ComboBox { Left = 12, Top = 48, Width = 230, DropDownStyle = ComboBoxStyle.DropDownList };
+            _txtProblem = new TextBox { Left = 248, Top = 48, Width = 310 };
+            _cmbPriority = new ComboBox { Left = 564, Top = 48, Width = 110, DropDownStyle = ComboBoxStyle.DropDownList };
             _cmbPriority.Items.AddRange(new[] { "Низкий", "Средний", "Высокий" });
             _cmbPriority.SelectedIndex = 1;
-            _cmbStatus = new ComboBox { Left = 680, Top = 45, Width = 120, DropDownStyle = ComboBoxStyle.DropDownList };
+            _cmbStatus = new ComboBox { Left = 680, Top = 48, Width = 120, DropDownStyle = ComboBoxStyle.DropDownList };
             _cmbStatus.Items.AddRange(new[] { "Новая", "В работе", "Ожидание", "Завершена" });
             _cmbStatus.SelectedIndex = 0;
-            _txtAssigned = new TextBox { Left = 806, Top = 45, Width = 160 };
-            var btnCreate = new Button { Left = 972, Top = 42, Width = 90, Height = 30, Text = "Создать" };
-            var btnUpdate = new Button { Left = 1066, Top = 42, Width = 95, Height = 30, Text = "Обновить" };
-            var btnClose = new Button { Left = 1165, Top = 42, Width = 90, Height = 30, Text = "Закрыть" };
+            _cmbAssigned = new ComboBox { Left = 806, Top = 48, Width = 160, DropDownStyle = ComboBoxStyle.DropDown };
+            var btnCreate = new Button { Left = 972, Top = 46, Width = 90, Height = 30, Text = "Создать" };
+            var btnUpdate = new Button { Left = 1066, Top = 46, Width = 95, Height = 30, Text = "Обновить" };
+            var btnClose = new Button { Left = 1165, Top = 46, Width = 90, Height = 30, Text = "Закрыть" };
+            var btnDelete = new Button { Left = 1066, Top = 80, Width = 189, Height = 28, Text = "Удалить запись" };
             ThemeHelper.StyleButton(btnCreate, ThemeHelper.Primary);
             ThemeHelper.StyleButton(btnUpdate, ThemeHelper.Secondary);
             ThemeHelper.StyleButton(btnClose, ThemeHelper.Success);
+            ThemeHelper.StyleButton(btnDelete, ThemeHelper.Danger);
             btnCreate.Click += BtnCreateRequest_Click;
             btnUpdate.Click += BtnUpdateRequest_Click;
             btnClose.Click += BtnCloseRequest_Click;
+            btnDelete.Click += BtnDeleteRequest_Click;
             card.Controls.AddRange(new Control[]
             {
-                LabelAt("Техника",12,27,230), LabelAt("Неисправность",248,27,310), LabelAt("Приоритет",564,27,110),
-                LabelAt("Статус",680,27,120), LabelAt("Исполнитель",806,27,160),
-                _cmbEquipment,_txtProblem,_cmbPriority,_cmbStatus,_txtAssigned,btnCreate,btnUpdate,btnClose
+                LabelAt("Техника",12,20,230), LabelAt("Неисправность",248,20,310), LabelAt("Приоритет",564,20,110),
+                LabelAt("Статус",680,20,120), LabelAt("Исполнитель",806,20,160),
+                _cmbEquipment,_txtProblem,_cmbPriority,_cmbStatus,_cmbAssigned,btnCreate,btnUpdate,btnClose,btnDelete
             });
 
             var filterPanel = new Panel { Dock = DockStyle.Top, Height = 44 };
@@ -121,6 +125,7 @@ namespace BGSK1
             _cmbPart.DataSource = SparePartService.GetParts();
             _cmbPart.DisplayMember = "PartName";
             _cmbPart.ValueMember = "Id";
+            BindAssignees();
 
             LoadRequests();
         }
@@ -169,7 +174,7 @@ namespace BGSK1
             _txtProblem.Text = _gridRequests.CurrentRow.Cells["ProblemDescription"]?.Value?.ToString() ?? string.Empty;
             _cmbPriority.Text = _gridRequests.CurrentRow.Cells["PriorityName"]?.Value?.ToString() ?? "Средний";
             _cmbStatus.Text = _gridRequests.CurrentRow.Cells["StatusName"]?.Value?.ToString() ?? "Новая";
-            _txtAssigned.Text = _gridRequests.CurrentRow.Cells["AssignedTo"]?.Value?.ToString() ?? string.Empty;
+            _cmbAssigned.Text = _gridRequests.CurrentRow.Cells["AssignedTo"]?.Value?.ToString() ?? string.Empty;
         }
 
         private void GridRequests_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
@@ -188,14 +193,13 @@ namespace BGSK1
 
         private void BtnCreateRequest_Click(object sender, EventArgs e)
         {
-            if (_cmbEquipment.SelectedValue == null || string.IsNullOrWhiteSpace(_txtProblem.Text))
+            using (var dialog = new RequestCreateForm())
             {
-                MessageBox.Show("Выберите технику и заполните неисправность.", "Валидация", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
+                if (dialog.ShowDialog(this) == DialogResult.OK)
+                {
+                    LoadRequests();
+                }
             }
-
-            RepairRequestService.CreateRequest(Convert.ToInt32(_cmbEquipment.SelectedValue), _txtProblem.Text.Trim(), _cmbPriority.Text, _txtAssigned.Text.Trim());
-            LoadRequests();
         }
 
         private void BtnUpdateRequest_Click(object sender, EventArgs e)
@@ -207,15 +211,40 @@ namespace BGSK1
             }
 
             var id = Convert.ToInt32(_gridRequests.CurrentRow.Cells["Id"].Value);
-            RepairRequestService.UpdateRequest(id, Convert.ToInt32(_cmbEquipment.SelectedValue), _txtProblem.Text.Trim(), _cmbPriority.Text, _cmbStatus.Text, _txtAssigned.Text.Trim());
-            LoadRequests();
+            var equipmentId = ResolveEquipmentIdForCurrentRow();
+            using (var dialog = new RequestEditForm(
+                id,
+                equipmentId,
+                _gridRequests.CurrentRow.Cells["ProblemDescription"]?.Value?.ToString() ?? string.Empty,
+                _gridRequests.CurrentRow.Cells["PriorityName"]?.Value?.ToString() ?? "Средний",
+                _gridRequests.CurrentRow.Cells["StatusName"]?.Value?.ToString() ?? "Новая",
+                _gridRequests.CurrentRow.Cells["AssignedTo"]?.Value?.ToString() ?? string.Empty))
+            {
+                if (dialog.ShowDialog(this) == DialogResult.OK)
+                {
+                    LoadRequests();
+                }
+            }
         }
 
         private void BtnCloseRequest_Click(object sender, EventArgs e)
         {
             if (_gridRequests.CurrentRow == null) return;
             var id = Convert.ToInt32(_gridRequests.CurrentRow.Cells["Id"].Value);
-            RepairRequestService.UpdateRequestStatus(id, "Завершена", _txtAssigned.Text.Trim());
+            RepairRequestService.UpdateRequestStatus(id, "Завершена", _cmbAssigned.Text.Trim());
+            LoadRequests();
+        }
+
+        private void BtnDeleteRequest_Click(object sender, EventArgs e)
+        {
+            if (_gridRequests.CurrentRow == null) return;
+            if (MessageBox.Show("Удалить выбранную заявку и связанные запчасти?", "Подтверждение", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
+            {
+                return;
+            }
+
+            var id = Convert.ToInt32(_gridRequests.CurrentRow.Cells["Id"].Value);
+            RepairRequestService.DeleteRequest(id);
             LoadRequests();
         }
 
@@ -237,7 +266,32 @@ namespace BGSK1
 
         private static Label LabelAt(string text, int left, int top, int width)
         {
-            return new Label { Text = text, Left = left, Top = top, Width = width };
+            return ThemeHelper.FormFieldLabel(text, left, top, width);
+        }
+
+        private int ResolveEquipmentIdForCurrentRow()
+        {
+            var displayInv = _gridRequests.CurrentRow.Cells["InventoryNumber"]?.Value?.ToString() ?? string.Empty;
+            var lookup = EquipmentService.GetEquipmentLookup();
+            foreach (DataRow row in lookup.Rows)
+            {
+                var display = row["DisplayName"]?.ToString() ?? string.Empty;
+                if (display.StartsWith(displayInv + " - ", StringComparison.OrdinalIgnoreCase))
+                {
+                    return Convert.ToInt32(row["Id"]);
+                }
+            }
+            return Convert.ToInt32(_cmbEquipment.SelectedValue);
+        }
+
+        private void BindAssignees()
+        {
+            var table = UserService.GetActiveUsersLookup();
+            _cmbAssigned.Items.Clear();
+            foreach (DataRow row in table.Rows)
+            {
+                _cmbAssigned.Items.Add(row["FullName"].ToString());
+            }
         }
     }
 }

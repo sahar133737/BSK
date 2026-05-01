@@ -86,5 +86,12 @@ WHERE Id = @Id;";
 
             AuditService.LogChange("RepairRequests", "UPDATE", id.ToString(), null, $"{{\"PriorityName\":\"{priorityName}\",\"StatusName\":\"{statusName}\"}}");
         }
+
+        public static void DeleteRequest(int id)
+        {
+            Db.ExecuteNonQuery("DELETE FROM dbo.RepairRequestParts WHERE RequestId=@Id;", new SqlParameter("@Id", id));
+            Db.ExecuteNonQuery("DELETE FROM dbo.RepairRequests WHERE Id=@Id;", new SqlParameter("@Id", id));
+            AuditService.LogChange("RepairRequests", "DELETE", id.ToString(), null, "{\"Deleted\":\"permanent\"}");
+        }
     }
 }

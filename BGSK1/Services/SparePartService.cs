@@ -10,7 +10,7 @@ namespace BGSK1.Services
         public static DataTable GetParts()
         {
             const string sql = @"
-SELECT Id, PartName, PartNumber, QuantityInStock, MinQuantity, UnitName, LastUpdated
+SELECT Id, PartName, PartNumber, QuantityInStock, MinQuantity, LastUpdated
 FROM dbo.SpareParts
 ORDER BY PartName;";
             return Db.ExecuteDataTable(sql);
@@ -50,6 +50,23 @@ WHERE Id = @PartId;";
             return Db.ExecuteDataTable(sql);
         }
 
+        /// <summary>Позиции с низким запасом: ещё не на минимуме, но близко (для фильтра и отчётов).</summary>
+        public static DataTable GetLowStockSoon()
+        {
+            const string sql = @"
+SELECT PartName, PartNumber, QuantityInStock, MinQuantity
+FROM dbo.SpareParts
+WHERE QuantityInStock > MinQuantity
+  AND QuantityInStock <= MinQuantity +
+        CASE
+            WHEN MinQuantity <= 0 THEN 2
+            WHEN MinQuantity <= 5 THEN MinQuantity + 2
+            ELSE (MinQuantity / 6) + 3
+        END
+ORDER BY QuantityInStock - MinQuantity;";
+            return Db.ExecuteDataTable(sql);
+        }
+
         public static void UpdatePart(int id, string partName, string partNumber, int quantityInStock, int minQuantity, string unitName)
         {
             const string sql = @"
@@ -70,6 +87,18 @@ WHERE Id = @Id;";
                 new SqlParameter("@UnitName", unitName),
                 new SqlParameter("@Id", id));
             AuditService.LogChange("SpareParts", "UPDATE", id.ToString(), null, $"{{\"PartName\":\"{partName}\",\"QuantityInStock\":{quantityInStock}}}");
+        }
+
+        public static void DeletePart(int id)
+        {
+            var deps = Db.ExecuteScalar("SELECT COUNT(*) FROM dbo.RepairRequestParts WHERE SparePartId=@Id;", new SqlParameter("@Id", id));
+            if (deps != null && Convert.ToInt32(deps) > 0)
+            {
+                throw new InvalidOperationException("Нельзя удалить запчасть: она используется в заявках.");
+            }
+
+            Db.ExecuteNonQuery("DELETE FROM dbo.SpareParts WHERE Id=@Id;", new SqlParameter("@Id", id));
+            AuditService.LogChange("SpareParts", "DELETE", id.ToString(), null, "{\"Deleted\":\"permanent\"}");
         }
     }
 }

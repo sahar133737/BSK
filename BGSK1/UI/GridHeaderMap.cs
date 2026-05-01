@@ -37,8 +37,7 @@ namespace BGSK1.UI
                 new Dictionary<string, string>
                 {
                     { "InventoryNumber", "Инв. номер" }, { "EquipmentName", "Оборудование" }, { "MaintenanceType", "Вид ТО" },
-                    { "PeriodDays", "Период (дн.)" }, { "NextDate", "Следующее ТО" }, { "ResponsiblePerson", "Ответственный" },
-                    { "IsActive", "Активен" }
+                    { "PeriodDays", "Период (дн.)" }, { "NextDate", "Следующее ТО" }, { "ResponsiblePerson", "Ответственный" }
                 }
             },
             {
@@ -46,7 +45,7 @@ namespace BGSK1.UI
                 new Dictionary<string, string>
                 {
                     { "PartName", "Запчасть" }, { "PartNumber", "Артикул" }, { "QuantityInStock", "Остаток" },
-                    { "MinQuantity", "Минимум" }, { "UnitName", "Ед. изм." }, { "LastUpdated", "Обновлено" }
+                    { "MinQuantity", "Минимум" }, { "LastUpdated", "Обновлено" }
                 }
             },
             {
@@ -69,7 +68,7 @@ namespace BGSK1.UI
                     { "AvgResolveHours", "Среднее время, ч" }, { "MaxResolveHours", "Макс. время, ч" },
                     { "MaintenanceType", "Вид ТО" }, { "PeriodDays", "Период (дн.)" }, { "NextDate", "Плановая дата ТО" },
                     { "LastPerformedAt", "Последнее выполнение" }, { "OverdueDays", "Дней просрочки" }, { "ComplianceStatus", "Статус контроля" },
-                    { "PartName", "Запчасть" }, { "PartNumber", "Артикул" }, { "UnitName", "Ед. изм." },
+                    { "PartName", "Запчасть" }, { "PartNumber", "Артикул" },
                     { "QuantityInStock", "Остаток на складе" }, { "MinQuantity", "Мин. остаток" }, { "UsedInPeriod", "Расход за период" },
                     { "ForecastNeed", "Потребность (прогноз)" }, { "RecommendedOrderQty", "Рекомендовано к заказу" }, { "StockRisk", "Риск запаса" }
                 }

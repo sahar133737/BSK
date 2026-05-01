@@ -1,4 +1,4 @@
-namespace BGSK1.Security
+ namespace BGSK1.Security
 {
     internal static class CurrentUserContext
     {

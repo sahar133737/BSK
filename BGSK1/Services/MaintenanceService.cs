@@ -79,5 +79,38 @@ WHERE Id = @Id;";
 
             AuditService.LogChange("MaintenancePlans", "UPDATE", id.ToString(), null, $"{{\"MaintenanceType\":\"{maintenanceType}\",\"IsActive\":{isActive.ToString().ToLowerInvariant()}}}");
         }
+
+        public static void DeletePlan(int id)
+        {
+            Db.ExecuteNonQuery("DELETE FROM dbo.MaintenanceHistory WHERE PlanId = @Id;", new SqlParameter("@Id", id));
+            Db.ExecuteNonQuery("DELETE FROM dbo.MaintenancePlans WHERE Id = @Id;", new SqlParameter("@Id", id));
+            AuditService.LogChange("MaintenancePlans", "DELETE", id.ToString(), null, "{\"Deleted\":\"permanent\"}");
+        }
+
+        public static DataTable GetMaintenanceTypeLookup()
+        {
+            const string sql = @"
+SELECT DISTINCT v AS Value
+FROM (
+    SELECT MaintenanceType AS v FROM dbo.MaintenancePlans WHERE ISNULL(MaintenanceType, N'') <> N''
+    UNION
+    SELECT Value AS v FROM dbo.LookupDictionary WHERE Category = N'MaintenanceType' AND ISNULL(Value, N'') <> N''
+) x
+ORDER BY Value;";
+            return Db.ExecuteDataTable(sql);
+        }
+
+        public static DataTable GetMaintenanceResponsibleLookup()
+        {
+            const string sql = @"
+SELECT DISTINCT v AS Value
+FROM (
+    SELECT ResponsiblePerson AS v FROM dbo.MaintenancePlans WHERE ISNULL(ResponsiblePerson, N'') <> N''
+    UNION
+    SELECT Value AS v FROM dbo.LookupDictionary WHERE Category = N'MaintenanceResponsible' AND ISNULL(Value, N'') <> N''
+) x
+ORDER BY Value;";
+            return Db.ExecuteDataTable(sql);
+        }
     }
 }

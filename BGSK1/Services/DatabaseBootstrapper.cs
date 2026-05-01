@@ -37,6 +37,37 @@ namespace BGSK1.Services
                     }
                 }
             }
+
+            EnsureLookupDictionaryTable();
+        }
+
+        /// <summary>
+        /// Создаёт dbo.LookupDictionary в базе приложения, если таблицы ещё нет (обновление со старых версий схемы).
+        /// </summary>
+        public static void EnsureLookupDictionaryTable()
+        {
+            const string sql = @"
+IF OBJECT_ID(N'dbo.LookupDictionary', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.LookupDictionary
+    (
+        Id INT IDENTITY(1,1) PRIMARY KEY,
+        Category NVARCHAR(50) NOT NULL,
+        Value NVARCHAR(200) NOT NULL,
+        CreatedAt DATETIME2 NOT NULL DEFAULT(SYSUTCDATETIME()),
+        CONSTRAINT UQ_LookupDictionary_Category_Value UNIQUE (Category, Value)
+    );
+    IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_LookupDictionary_Category' AND object_id = OBJECT_ID(N'dbo.LookupDictionary'))
+        CREATE INDEX IX_LookupDictionary_Category ON dbo.LookupDictionary(Category);
+END";
+
+            using (var connection = new SqlConnection(Db.AppConnectionString))
+            using (var command = new SqlCommand(sql, connection))
+            {
+                connection.Open();
+                command.CommandTimeout = 60;
+                command.ExecuteNonQuery();
+            }
         }
     }
 }

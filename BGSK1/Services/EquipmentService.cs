@@ -67,5 +67,63 @@ WHERE Id = @Id;";
             const string sql = "SELECT Id, InventoryNumber + N' - ' + Name AS DisplayName FROM dbo.Equipment WHERE IsDeleted = 0 ORDER BY InventoryNumber;";
             return Db.ExecuteDataTable(sql);
         }
+
+        public static DataTable GetTypeLookup()
+        {
+            const string sql = @"
+SELECT DISTINCT v AS Value
+FROM (
+    SELECT TypeName AS v FROM dbo.Equipment WHERE IsDeleted = 0 AND ISNULL(TypeName, N'') <> N''
+    UNION
+    SELECT Value AS v FROM dbo.LookupDictionary WHERE Category = N'EquipmentType' AND ISNULL(Value, N'') <> N''
+) x
+ORDER BY Value;";
+            return Db.ExecuteDataTable(sql);
+        }
+
+        public static DataTable GetLocationLookup()
+        {
+            const string sql = @"
+SELECT DISTINCT v AS Value
+FROM (
+    SELECT LocationName AS v FROM dbo.Equipment WHERE IsDeleted = 0 AND ISNULL(LocationName, N'') <> N''
+    UNION
+    SELECT Value AS v FROM dbo.LookupDictionary WHERE Category = N'Location' AND ISNULL(Value, N'') <> N''
+) x
+ORDER BY Value;";
+            return Db.ExecuteDataTable(sql);
+        }
+
+        public static DataTable GetResponsibleLookup()
+        {
+            const string sql = @"
+SELECT DISTINCT v AS Value
+FROM (
+    SELECT ResponsiblePerson AS v FROM dbo.Equipment WHERE IsDeleted = 0 AND ISNULL(ResponsiblePerson, N'') <> N''
+    UNION
+    SELECT Value AS v FROM dbo.LookupDictionary WHERE Category = N'EquipmentResponsible' AND ISNULL(Value, N'') <> N''
+) x
+ORDER BY Value;";
+            return Db.ExecuteDataTable(sql);
+        }
+
+        public static void DeleteEquipmentPermanently(int id)
+        {
+            const string hasDepsSql = @"
+SELECT
+    (SELECT COUNT(*) FROM dbo.RepairRequests WHERE EquipmentId = @Id) AS RequestsCount,
+    (SELECT COUNT(*) FROM dbo.MaintenancePlans WHERE EquipmentId = @Id) AS PlansCount;";
+            var deps = Db.ExecuteDataTable(hasDepsSql, new SqlParameter("@Id", id));
+            var requestsCount = Convert.ToInt32(deps.Rows[0]["RequestsCount"]);
+            var plansCount = Convert.ToInt32(deps.Rows[0]["PlansCount"]);
+
+            if (requestsCount > 0 || plansCount > 0)
+            {
+                throw new InvalidOperationException("Нельзя удалить технику: есть связанные заявки или планы ТО. Сначала удалите связанные записи.");
+            }
+
+            Db.ExecuteNonQuery("DELETE FROM dbo.Equipment WHERE Id = @Id;", new SqlParameter("@Id", id));
+            AuditService.LogChange("Equipment", "DELETE", id.ToString(), null, "{\"Deleted\":\"permanent\"}");
+        }
     }
 }
