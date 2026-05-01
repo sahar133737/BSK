@@ -36,23 +36,25 @@ namespace BGSK1
             var btnAddMaintType = LookupUiHelper.CreateAddLookupButton(400, 48, "Добавить вид ТО", (s, e) => AddLookupAndRefresh(_cmbType, LookupDictionaryService.MaintenanceType, "Новый вид планового ТО"));
             _numPeriod = new NumericUpDown { Left = 434, Top = 48, Width = 90, Minimum = 1, Maximum = 365, Value = 30 };
             _dtNext = new DateTimePicker { Left = 530, Top = 48, Width = 150 };
-            _cmbResponsible = new ComboBox { Left = 686, Top = 48, Width = 145, DropDownStyle = ComboBoxStyle.DropDown };
-            var btnAddMaintResp = LookupUiHelper.CreateAddLookupButton(835, 48, "Добавить ответственного за ТО", (s, e) => AddLookupAndRefresh(_cmbResponsible, LookupDictionaryService.MaintenanceResponsible, "Новый ответственный за ТО (ФИО)"));
+            _cmbResponsible = new ComboBox { Left = 686, Top = 48, Width = 145, DropDownStyle = ComboBoxStyle.DropDownList };
             _chkActive = new CheckBox { Left = 870, Top = 51, Width = 80, Text = "Активен", Checked = true };
             var btnAdd = new Button { Left = 12, Top = 82, Width = 120, Height = 28, Text = "Добавить" };
             var btnUpdate = new Button { Left = 138, Top = 82, Width = 120, Height = 28, Text = "Обновить" };
             var btnDelete = new Button { Left = 266, Top = 82, Width = 200, Height = 28, Text = "Удалить запись" };
+            var btnHelp = new Button { Left = 472, Top = 82, Width = 120, Height = 28, Text = "Справка" };
             ThemeHelper.StyleButton(btnAdd, ThemeHelper.Primary);
             ThemeHelper.StyleButton(btnUpdate, ThemeHelper.Secondary);
             ThemeHelper.StyleButton(btnDelete, ThemeHelper.Danger);
+            ThemeHelper.StyleButton(btnHelp, ThemeHelper.Accent);
             btnAdd.Click += BtnAdd_Click;
             btnUpdate.Click += BtnUpdate_Click;
             btnDelete.Click += BtnDelete_Click;
+            btnHelp.Click += (s, e) => ModuleHelpProvider.ShowHelp("maintenance", this);
             card.Controls.AddRange(new Control[]
             {
                 LabelAt("Техника",12,20,260), LabelAt("Вид ТО",278,20,120), LabelAt("Период (дн.)",434,20,90),
                 LabelAt("Следующая дата",530,20,150), LabelAt("Ответственный",686,20,145),
-                _cmbEquipment,_cmbType,btnAddMaintType,_numPeriod,_dtNext,_cmbResponsible,btnAddMaintResp,_chkActive,btnAdd,btnUpdate,btnDelete
+                _cmbEquipment,_cmbType,btnAddMaintType,_numPeriod,_dtNext,_cmbResponsible,_chkActive,btnAdd,btnUpdate,btnDelete,btnHelp
             });
 
             var top = new Panel { Dock = DockStyle.Top, Height = 46 };
@@ -83,6 +85,7 @@ namespace BGSK1
             Controls.Add(_grid);
             Controls.Add(top);
             Controls.Add(card);
+            ModuleHelpProvider.BindF11(this, "maintenance");
             Load += (s, e) => LoadData();
         }
 
@@ -206,7 +209,7 @@ namespace BGSK1
         private void BindLookups()
         {
             FillCombo(_cmbType, MaintenanceService.GetMaintenanceTypeLookup());
-            FillCombo(_cmbResponsible, MaintenanceService.GetMaintenanceResponsibleLookup());
+            FillUsersCombo(_cmbResponsible);
         }
 
         private void AddLookupAndRefresh(ComboBox combo, string category, string dialogTitle)
@@ -227,6 +230,18 @@ namespace BGSK1
             foreach (DataRow row in source.Rows)
             {
                 combo.Items.Add(row["Value"].ToString());
+            }
+            combo.Text = current;
+        }
+
+        private static void FillUsersCombo(ComboBox combo)
+        {
+            var current = combo.Text;
+            combo.Items.Clear();
+            var source = UserService.GetActiveUsersLookup();
+            foreach (DataRow row in source.Rows)
+            {
+                combo.Items.Add(row["FullName"].ToString());
             }
             combo.Text = current;
         }

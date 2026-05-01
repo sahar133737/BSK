@@ -37,18 +37,21 @@ namespace BGSK1
             var btnUpdate = new Button { Left = 770, Top = 46, Width = 100, Height = 30, Text = "Обновить" };
             var btnWriteOff = new Button { Left = 874, Top = 46, Width = 110, Height = 30, Text = "Списать 1" };
             var btnDelete = new Button { Left = 770, Top = 80, Width = 214, Height = 26, Text = "Удалить запись" };
+            var btnHelp = new Button { Left = 666, Top = 80, Width = 100, Height = 26, Text = "Справка" };
             ThemeHelper.StyleButton(btnAdd, ThemeHelper.Primary);
             ThemeHelper.StyleButton(btnUpdate, ThemeHelper.Secondary);
             ThemeHelper.StyleButton(btnWriteOff, ThemeHelper.Danger);
             ThemeHelper.StyleButton(btnDelete, ThemeHelper.Danger);
+            ThemeHelper.StyleButton(btnHelp, ThemeHelper.Accent);
             btnAdd.Click += BtnAdd_Click;
             btnUpdate.Click += BtnUpdate_Click;
             btnWriteOff.Click += BtnWriteOff_Click;
             btnDelete.Click += BtnDelete_Click;
+            btnHelp.Click += (s, e) => ModuleHelpProvider.ShowHelp("parts", this);
             card.Controls.AddRange(new Control[]
             {
                 LabelAt("Наименование",12,20,250), LabelAt("Артикул",268,20,160), LabelAt("Остаток",434,20,110), LabelAt("Мин. остаток",550,20,110),
-                _txtName,_txtNumber,_numQty,_numMin,btnAdd,btnUpdate,btnWriteOff,btnDelete
+                _txtName,_txtNumber,_numQty,_numMin,btnAdd,btnUpdate,btnWriteOff,btnDelete,btnHelp
             });
 
             var top = new Panel { Dock = DockStyle.Top, Height = 46 };
@@ -89,6 +92,7 @@ namespace BGSK1
             Controls.Add(_grid);
             Controls.Add(top);
             Controls.Add(card);
+            ModuleHelpProvider.BindF11(this, "parts");
             Load += (s, e) => LoadData();
         }
 

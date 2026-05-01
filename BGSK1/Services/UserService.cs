@@ -1,7 +1,6 @@
 using System;
 using System.Data;
 using System.Data.SqlClient;
-using System.Text.RegularExpressions;
 using BGSK1.Infrastructure;
 using BGSK1.Security;
 
@@ -9,12 +8,7 @@ namespace BGSK1.Services
 {
     internal static class UserService
     {
-        private static readonly Regex EmailRegex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
-        public static bool IsValidEmail(string email)
-        {
-            return !string.IsNullOrWhiteSpace(email) && EmailRegex.IsMatch(email.Trim());
-        }
+        public static bool IsValidLogin(string login) => !string.IsNullOrWhiteSpace(login);
 
         public static bool IsStrongPassword(string password)
         {
@@ -52,11 +46,11 @@ ORDER BY u.Id DESC;";
             return Db.ExecuteDataTable(sql);
         }
 
-        public static void CreateUser(string email, string fullName, int roleId, string password)
+        public static void CreateUser(string login, string fullName, int roleId, string password)
         {
-            if (!IsValidEmail(email))
+            if (!IsValidLogin(login))
             {
-                throw new ArgumentException("Некорректный email.");
+                throw new ArgumentException("Логин не может быть пустым.");
             }
             if (!IsStrongPassword(password))
             {
@@ -71,19 +65,19 @@ SELECT SCOPE_IDENTITY();";
 
             var newId = Convert.ToInt32(Db.ExecuteScalar(
                 sql,
-                new SqlParameter("@Email", email),
+                new SqlParameter("@Email", login),
                 new SqlParameter("@PasswordHash", hash),
                 new SqlParameter("@FullName", fullName),
                 new SqlParameter("@RoleId", roleId)));
 
-            AuditService.LogChange("Users", "INSERT", newId.ToString(), null, $"{{\"Email\":\"{email}\",\"FullName\":\"{fullName}\"}}");
+            AuditService.LogChange("Users", "INSERT", newId.ToString(), null, $"{{\"Email\":\"{login}\",\"FullName\":\"{fullName}\"}}");
         }
 
-        public static void UpdateUser(int id, string email, string fullName, int roleId, bool isActive)
+        public static void UpdateUser(int id, string login, string fullName, int roleId, bool isActive)
         {
-            if (!IsValidEmail(email))
+            if (!IsValidLogin(login))
             {
-                throw new ArgumentException("Некорректный email.");
+                throw new ArgumentException("Логин не может быть пустым.");
             }
             if (id == CurrentUserContext.UserId && !isActive)
             {
@@ -107,7 +101,7 @@ WHERE Id = @Id;";
 
             Db.ExecuteNonQuery(
                 sql,
-                new SqlParameter("@Email", email),
+                new SqlParameter("@Email", login),
                 new SqlParameter("@FullName", fullName),
                 new SqlParameter("@RoleId", roleId),
                 new SqlParameter("@IsActive", isActive),
@@ -115,7 +109,7 @@ WHERE Id = @Id;";
 
             var oldJson = previous.Rows.Count == 0 ? null :
                 $"{{\"Email\":\"{previous.Rows[0]["Email"]}\",\"FullName\":\"{previous.Rows[0]["FullName"]}\",\"IsActive\":{previous.Rows[0]["IsActive"].ToString().ToLowerInvariant()}}}";
-            var newJson = $"{{\"Email\":\"{email}\",\"FullName\":\"{fullName}\",\"IsActive\":{isActive.ToString().ToLowerInvariant()}}}";
+            var newJson = $"{{\"Email\":\"{login}\",\"FullName\":\"{fullName}\",\"IsActive\":{isActive.ToString().ToLowerInvariant()}}}";
             AuditService.LogChange("Users", "UPDATE", id.ToString(), oldJson, newJson);
         }
 

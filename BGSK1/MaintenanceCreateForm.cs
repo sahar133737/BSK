@@ -29,8 +29,7 @@ namespace BGSK1
             var btnAddType = LookupUiHelper.CreateAddLookupButton(622, 48, "Добавить вид ТО", (s, e) => AddLookup(_cmbType, LookupDictionaryService.MaintenanceType, "Новый вид планового ТО"));
             _numPeriod = new NumericUpDown { Left = 20, Top = 106, Width = 140, Minimum = 1, Maximum = 365, Value = 30 };
             _dtNext = new DateTimePicker { Left = 170, Top = 106, Width = 160 };
-            _cmbResponsible = new ComboBox { Left = 340, Top = 106, Width = 268, DropDownStyle = ComboBoxStyle.DropDown };
-            var btnAddResp = LookupUiHelper.CreateAddLookupButton(612, 106, "Добавить ответственного за ТО", (s, e) => AddLookup(_cmbResponsible, LookupDictionaryService.MaintenanceResponsible, "Новый ответственный за ТО (ФИО)"));
+            _cmbResponsible = new ComboBox { Left = 340, Top = 106, Width = 268, DropDownStyle = ComboBoxStyle.DropDownList };
 
             var btnCreate = new Button { Left = 20, Top = 190, Width = 320, Height = 34, Text = "Создать план ТО" };
             var btnCancel = new Button { Left = 350, Top = 190, Width = 330, Height = 34, Text = "Отмена" };
@@ -43,7 +42,7 @@ namespace BGSK1
             {
                 LabelAt("Техника",20,20,120), LabelAt("Вид ТО",350,20,120), LabelAt("Период (дн.)",20,78,120),
                 LabelAt("Дата следующего ТО",170,78,150), LabelAt("Ответственный",340,78,120),
-                _cmbEquipment, _cmbType, btnAddType, _numPeriod, _dtNext, _cmbResponsible, btnAddResp, btnCreate, btnCancel
+                _cmbEquipment, _cmbType, btnAddType, _numPeriod, _dtNext, _cmbResponsible, btnCreate, btnCancel
             });
 
             Load += MaintenanceCreateForm_Load;
@@ -57,7 +56,6 @@ namespace BGSK1
             }
 
             FillCombo(_cmbType, MaintenanceService.GetMaintenanceTypeLookup());
-            FillCombo(_cmbResponsible, MaintenanceService.GetMaintenanceResponsibleLookup());
             combo.Text = value;
         }
 
@@ -67,7 +65,7 @@ namespace BGSK1
             _cmbEquipment.DisplayMember = "DisplayName";
             _cmbEquipment.ValueMember = "Id";
             FillCombo(_cmbType, MaintenanceService.GetMaintenanceTypeLookup());
-            FillCombo(_cmbResponsible, MaintenanceService.GetMaintenanceResponsibleLookup());
+            FillUsersCombo(_cmbResponsible);
         }
 
         private void BtnCreate_Click(object sender, EventArgs e)
@@ -95,6 +93,16 @@ namespace BGSK1
         private static Label LabelAt(string text, int left, int top, int width)
         {
             return ThemeHelper.FormFieldLabel(text, left, top, width);
+        }
+
+        private static void FillUsersCombo(ComboBox combo)
+        {
+            combo.Items.Clear();
+            var source = UserService.GetActiveUsersLookup();
+            foreach (DataRow row in source.Rows)
+            {
+                combo.Items.Add(row["FullName"].ToString());
+            }
         }
     }
 }

@@ -44,6 +44,17 @@ WHERE Id = @PartId;";
             AuditService.LogChange("SpareParts", "UPDATE", partId.ToString(), null, $"{{\"WriteOffQuantity\":{quantity}}}");
         }
 
+        public static void ReturnPartToStock(int partId, int quantity)
+        {
+            const string sql = @"
+UPDATE dbo.SpareParts
+SET QuantityInStock = QuantityInStock + @Quantity,
+    LastUpdated = SYSUTCDATETIME()
+WHERE Id = @PartId;";
+            Db.ExecuteNonQuery(sql, new SqlParameter("@PartId", partId), new SqlParameter("@Quantity", quantity));
+            AuditService.LogChange("SpareParts", "UPDATE", partId.ToString(), null, $"{{\"ReturnQuantity\":{quantity}}}");
+        }
+
         public static DataTable GetLowStock()
         {
             const string sql = "SELECT PartName, PartNumber, QuantityInStock, MinQuantity FROM dbo.SpareParts WHERE QuantityInStock <= MinQuantity ORDER BY PartName;";

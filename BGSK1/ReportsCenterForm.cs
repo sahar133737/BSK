@@ -45,6 +45,7 @@ namespace BGSK1
             var be = new Button { Left = 908, Top = 86, Width = 120, Height = 32, Text = "Excel" };
             var bf = new Button { Left = 1032, Top = 86, Width = 100, Height = 32, Text = "PDF" };
             var bp = new Button { Left = 1136, Top = 86, Width = 84, Height = 32, Text = "Печать" };
+            var bh = new Button { Left = 1224, Top = 52, Width = 90, Height = 28, Text = "Справка" };
             _chkShowJournal = new CheckBox { Left = 1224, Top = 92, Width = 90, Height = 24, Text = "Журнал", Checked = false };
             ThemeHelper.StyleButton(b1, ThemeHelper.Primary);
             ThemeHelper.StyleButton(b2, ThemeHelper.Primary);
@@ -53,6 +54,7 @@ namespace BGSK1
             ThemeHelper.StyleButton(be, ThemeHelper.Secondary);
             ThemeHelper.StyleButton(bf, ThemeHelper.Secondary);
             ThemeHelper.StyleButton(bp, ThemeHelper.Secondary);
+            ThemeHelper.StyleButton(bh, ThemeHelper.Accent);
             b1.Click += (s, e) => LoadEquipmentPassport();
             b2.Click += (s, e) => LoadSlaAnalytics();
             b3.Click += (s, e) => LoadMaintenanceCompliance();
@@ -60,8 +62,9 @@ namespace BGSK1
             be.Click += ExportExcel_Click;
             bf.Click += ExportPdf_Click;
             bp.Click += Print_Click;
+            bh.Click += (s, e) => ModuleHelpProvider.ShowHelp("reports", this);
             _chkShowJournal.CheckedChanged += (s, e) => ToggleHistory();
-            top.Controls.AddRange(new Control[] { _lblTitle, _dtFrom, _dtTo, lblPeriod, b1, b2, b3, b4, be, bf, bp, _chkShowJournal });
+            top.Controls.AddRange(new Control[] { _lblTitle, _dtFrom, _dtTo, lblPeriod, b1, b2, b3, b4, be, bf, bp, bh, _chkShowJournal });
 
             var split = new SplitContainer { Dock = DockStyle.Fill, Orientation = Orientation.Horizontal, SplitterDistance = 540 };
             _grid = new DataGridView
@@ -89,6 +92,7 @@ namespace BGSK1
 
             Controls.Add(split);
             Controls.Add(top);
+            ModuleHelpProvider.BindF11(this, "reports");
             Load += (s, e) => { LoadEquipmentPassport(); LoadHistory(); ToggleHistory(); };
         }
 

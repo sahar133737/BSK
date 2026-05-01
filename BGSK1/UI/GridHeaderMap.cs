@@ -85,7 +85,7 @@ namespace BGSK1.UI
                 "users",
                 new Dictionary<string, string>
                 {
-                    { "Email", "Логин (Email)" }, { "FullName", "ФИО" }, { "RoleName", "Роль" },
+                    { "Email", "Логин" }, { "FullName", "ФИО" }, { "RoleName", "Роль" },
                     { "IsActive", "Активен" }, { "RegistrationDate", "Дата регистрации" }
                 }
             },
@@ -120,6 +120,10 @@ namespace BGSK1.UI
                 if (map.ContainsKey(column.Name))
                 {
                     column.HeaderText = map[column.Name];
+                }
+                else if (column.Visible)
+                {
+                    column.Visible = false;
                 }
             }
         }

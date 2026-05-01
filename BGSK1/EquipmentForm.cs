@@ -34,22 +34,24 @@ namespace BGSK1
             var btnAddType = LookupUiHelper.CreateAddLookupButton(538, 48, "Добавить тип техники в справочник", (s, e) => AddLookupAndRefresh(_cmbType, LookupDictionaryService.EquipmentType, "Новый тип техники"));
             _cmbLocation = new ComboBox { Left = 570, Top = 48, Width = 136, DropDownStyle = ComboBoxStyle.DropDown };
             var btnAddLocation = LookupUiHelper.CreateAddLookupButton(708, 48, "Добавить кабинет / локацию", (s, e) => AddLookupAndRefresh(_cmbLocation, LookupDictionaryService.Location, "Новая локация (кабинет)"));
-            _cmbResponsible = new ComboBox { Left = 740, Top = 48, Width = 152, DropDownStyle = ComboBoxStyle.DropDown };
-            var btnAddResp = LookupUiHelper.CreateAddLookupButton(894, 48, "Добавить ответственного за технику", (s, e) => AddLookupAndRefresh(_cmbResponsible, LookupDictionaryService.EquipmentResponsible, "Новый ответственный (ФИО)"));
+            _cmbResponsible = new ComboBox { Left = 740, Top = 48, Width = 152, DropDownStyle = ComboBoxStyle.DropDownList };
             var btnAdd = new Button { Left = 928, Top = 46, Width = 110, Height = 30, Text = "Добавить" };
             var btnUpdate = new Button { Left = 1044, Top = 46, Width = 110, Height = 30, Text = "Обновить" };
             var btnDelete = new Button { Left = 928, Top = 80, Width = 226, Height = 24, Text = "Удалить запись" };
+            var btnHelp = new Button { Left = 1044, Top = 80, Width = 110, Height = 24, Text = "Справка" };
             ThemeHelper.StyleButton(btnAdd, ThemeHelper.Primary);
             ThemeHelper.StyleButton(btnUpdate, ThemeHelper.Secondary);
             ThemeHelper.StyleButton(btnDelete, ThemeHelper.Danger);
+            ThemeHelper.StyleButton(btnHelp, ThemeHelper.Accent);
             btnAdd.Click += BtnAdd_Click;
             btnUpdate.Click += BtnUpdate_Click;
             btnDelete.Click += BtnDelete_Click;
+            btnHelp.Click += (s, e) => ModuleHelpProvider.ShowHelp("equipment", this);
             card.Controls.AddRange(new Control[]
             {
                 LabelAt("Инв. номер", 16, 20, 140), LabelAt("Наименование", 164, 20, 240), LabelAt("Тип", 412, 20, 124),
                 LabelAt("Локация", 568, 20, 136), LabelAt("Ответственный", 740, 20, 152),
-                _txtInv, _txtName, _cmbType, btnAddType, _cmbLocation, btnAddLocation, _cmbResponsible, btnAddResp, btnAdd, btnUpdate, btnDelete
+                _txtInv, _txtName, _cmbType, btnAddType, _cmbLocation, btnAddLocation, _cmbResponsible, btnAdd, btnUpdate, btnDelete, btnHelp
             });
 
             var top = new Panel { Dock = DockStyle.Top, Height = 48 };
@@ -76,6 +78,7 @@ namespace BGSK1
             Controls.Add(_grid);
             Controls.Add(top);
             Controls.Add(card);
+            ModuleHelpProvider.BindF11(this, "equipment");
             Load += (s, e) => LoadData();
         }
 
@@ -90,7 +93,7 @@ namespace BGSK1
         {
             FillCombo(_cmbType, EquipmentService.GetTypeLookup());
             FillCombo(_cmbLocation, EquipmentService.GetLocationLookup());
-            FillCombo(_cmbResponsible, EquipmentService.GetResponsibleLookup());
+            FillUsersCombo(_cmbResponsible);
         }
 
         private void AddLookupAndRefresh(ComboBox combo, string category, string dialogTitle)
@@ -111,6 +114,18 @@ namespace BGSK1
             foreach (DataRow row in source.Rows)
             {
                 combo.Items.Add(row["Value"].ToString());
+            }
+            combo.Text = current;
+        }
+
+        private static void FillUsersCombo(ComboBox combo)
+        {
+            var current = combo.Text;
+            var source = UserService.GetActiveUsersLookup();
+            combo.Items.Clear();
+            foreach (DataRow row in source.Rows)
+            {
+                combo.Items.Add(row["FullName"].ToString());
             }
             combo.Text = current;
         }

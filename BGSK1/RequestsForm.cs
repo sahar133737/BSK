@@ -41,24 +41,27 @@ namespace BGSK1
             _cmbStatus = new ComboBox { Left = 680, Top = 48, Width = 120, DropDownStyle = ComboBoxStyle.DropDownList };
             _cmbStatus.Items.AddRange(new[] { "Новая", "В работе", "Ожидание", "Завершена" });
             _cmbStatus.SelectedIndex = 0;
-            _cmbAssigned = new ComboBox { Left = 806, Top = 48, Width = 160, DropDownStyle = ComboBoxStyle.DropDown };
+            _cmbAssigned = new ComboBox { Left = 806, Top = 48, Width = 160, DropDownStyle = ComboBoxStyle.DropDownList };
             var btnCreate = new Button { Left = 972, Top = 46, Width = 90, Height = 30, Text = "Создать" };
             var btnUpdate = new Button { Left = 1066, Top = 46, Width = 95, Height = 30, Text = "Обновить" };
             var btnClose = new Button { Left = 1165, Top = 46, Width = 90, Height = 30, Text = "Закрыть" };
             var btnDelete = new Button { Left = 1066, Top = 80, Width = 189, Height = 28, Text = "Удалить запись" };
+            var btnHelp = new Button { Left = 972, Top = 80, Width = 90, Height = 28, Text = "Справка" };
             ThemeHelper.StyleButton(btnCreate, ThemeHelper.Primary);
             ThemeHelper.StyleButton(btnUpdate, ThemeHelper.Secondary);
             ThemeHelper.StyleButton(btnClose, ThemeHelper.Success);
             ThemeHelper.StyleButton(btnDelete, ThemeHelper.Danger);
+            ThemeHelper.StyleButton(btnHelp, ThemeHelper.Accent);
             btnCreate.Click += BtnCreateRequest_Click;
             btnUpdate.Click += BtnUpdateRequest_Click;
             btnClose.Click += BtnCloseRequest_Click;
             btnDelete.Click += BtnDeleteRequest_Click;
+            btnHelp.Click += (s, e) => ModuleHelpProvider.ShowHelp("requests", this);
             card.Controls.AddRange(new Control[]
             {
                 LabelAt("Техника",12,20,230), LabelAt("Неисправность",248,20,310), LabelAt("Приоритет",564,20,110),
                 LabelAt("Статус",680,20,120), LabelAt("Исполнитель",806,20,160),
-                _cmbEquipment,_txtProblem,_cmbPriority,_cmbStatus,_cmbAssigned,btnCreate,btnUpdate,btnClose,btnDelete
+                _cmbEquipment,_txtProblem,_cmbPriority,_cmbStatus,_cmbAssigned,btnCreate,btnUpdate,btnClose,btnDelete,btnHelp
             });
 
             var filterPanel = new Panel { Dock = DockStyle.Top, Height = 44 };
@@ -82,14 +85,16 @@ namespace BGSK1
             _cmbPart = new ComboBox { Left = 340, Top = 12, Width = 260, DropDownStyle = ComboBoxStyle.DropDownList };
             _numQty = new NumericUpDown { Left = 608, Top = 12, Width = 90, Minimum = 1, Maximum = 500, Value = 1 };
             var btnAddPart = new Button { Left = 706, Top = 10, Width = 160, Height = 28, Text = "Добавить запчасть" };
+            var btnRemovePart = new Button { Left = 872, Top = 10, Width = 180, Height = 28, Text = "Убрать из заявки" };
             btnAddPart.Click += BtnAddPartToRequest_Click;
+            btnRemovePart.Click += BtnRemovePartFromRequest_Click;
             _gridParts = CreateGrid();
             _gridParts.Top = 46;
             _gridParts.Left = 0;
             _gridParts.Width = 1240;
             _gridParts.Height = 240;
             _gridParts.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            bottomPanel.Controls.AddRange(new Control[] { _cmbRequest, _cmbPart, _numQty, btnAddPart, _gridParts });
+            bottomPanel.Controls.AddRange(new Control[] { _cmbRequest, _cmbPart, _numQty, btnAddPart, btnRemovePart, _gridParts });
 
             split.Panel1.Controls.Add(_gridRequests);
             split.Panel2.Controls.Add(bottomPanel);
@@ -97,6 +102,7 @@ namespace BGSK1
             Controls.Add(split);
             Controls.Add(filterPanel);
             Controls.Add(card);
+            ModuleHelpProvider.BindF11(this, "requests");
             Load += RequestsForm_Load;
         }
 
@@ -253,7 +259,7 @@ namespace BGSK1
             if (_gridRequests.CurrentRow == null) return;
             var requestId = Convert.ToInt32(_gridRequests.CurrentRow.Cells["Id"].Value);
             _gridParts.DataSource = RepairRequestPartsService.GetRequestParts(requestId);
-            GridHeaderMap.Apply(_gridParts, "requestParts", "Id");
+            GridHeaderMap.Apply(_gridParts, "requestParts", "Id", "SparePartId");
         }
 
         private void BtnAddPartToRequest_Click(object sender, EventArgs e)
@@ -262,6 +268,25 @@ namespace BGSK1
             RepairRequestPartsService.AddPartToRequest(Convert.ToInt32(_cmbRequest.SelectedValue), Convert.ToInt32(_cmbPart.SelectedValue), Convert.ToInt32(_numQty.Value));
             LoadRequestParts();
             MessageBox.Show("Запчасть добавлена в заявку.", "Готово", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void BtnRemovePartFromRequest_Click(object sender, EventArgs e)
+        {
+            if (_gridParts.CurrentRow == null || !_gridParts.Columns.Contains("Id"))
+            {
+                MessageBox.Show("Выберите строку с запчастью в нижней таблице.", "Внимание", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (MessageBox.Show("Убрать запчасть из заявки и вернуть ее на склад?", "Подтверждение", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+            {
+                return;
+            }
+
+            var requestPartId = Convert.ToInt32(_gridParts.CurrentRow.Cells["Id"].Value);
+            RepairRequestPartsService.RemovePartFromRequest(requestPartId);
+            LoadRequestParts();
+            MessageBox.Show("Запчасть удалена из заявки и возвращена на склад.", "Готово", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private static Label LabelAt(string text, int left, int top, int width)
@@ -287,11 +312,9 @@ namespace BGSK1
         private void BindAssignees()
         {
             var table = UserService.GetActiveUsersLookup();
-            _cmbAssigned.Items.Clear();
-            foreach (DataRow row in table.Rows)
-            {
-                _cmbAssigned.Items.Add(row["FullName"].ToString());
-            }
+            _cmbAssigned.DataSource = table;
+            _cmbAssigned.DisplayMember = "FullName";
+            _cmbAssigned.ValueMember = "FullName";
         }
     }
 }

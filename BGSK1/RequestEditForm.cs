@@ -33,8 +33,7 @@ namespace BGSK1
             _cmbStatus = new ComboBox { Left = 180, Top = 106, Width = 160, DropDownStyle = ComboBoxStyle.DropDownList };
             _cmbStatus.Items.AddRange(new[] { "Новая", "В работе", "Ожидание", "Завершена" });
             _cmbStatus.Text = string.IsNullOrWhiteSpace(status) ? "Новая" : status;
-            _cmbAssigned = new ComboBox { Left = 350, Top = 106, Width = 260, DropDownStyle = ComboBoxStyle.DropDown };
-            _cmbAssigned.Text = assignedTo ?? string.Empty;
+            _cmbAssigned = new ComboBox { Left = 350, Top = 106, Width = 260, DropDownStyle = ComboBoxStyle.DropDownList };
 
             var btnSave = new Button { Left = 20, Top = 210, Width = 350, Height = 34, Text = "Сохранить" };
             var btnCancel = new Button { Left = 380, Top = 210, Width = 350, Height = 34, Text = "Отмена" };
@@ -58,10 +57,10 @@ namespace BGSK1
                 _cmbEquipment.SelectedValue = equipmentId;
 
                 var users = UserService.GetActiveUsersLookup();
-                foreach (System.Data.DataRow row in users.Rows)
-                {
-                    _cmbAssigned.Items.Add(row["FullName"].ToString());
-                }
+                _cmbAssigned.DataSource = users;
+                _cmbAssigned.DisplayMember = "FullName";
+                _cmbAssigned.ValueMember = "FullName";
+                _cmbAssigned.Text = assignedTo ?? string.Empty;
             };
         }
 

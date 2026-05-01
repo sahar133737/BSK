@@ -58,6 +58,18 @@ namespace BGSK1
             AddMenuButton(sidebar, "Бэкапы", 20, 400, 290, ThemeHelper.Primary, "module.backups", () => OpenModule(new BackupForm()));
             AddMenuButton(sidebar, "Пользователи", 20, 456, 290, ThemeHelper.Primary, "module.users", () => OpenModule(new UserManagementForm()));
             AddMenuButton(sidebar, "Администрирование прав", 20, 512, 290, ThemeHelper.Secondary, "module.admin", () => OpenModule(new AdminPermissionsForm()));
+            var btnHelp = new Button
+            {
+                Left = 20,
+                Top = 568,
+                Width = 290,
+                Height = 44,
+                Text = "Справка",
+                Font = new Font("Segoe UI Semibold", 10.5f, FontStyle.Bold)
+            };
+            ThemeHelper.StyleButton(btnHelp, ThemeHelper.Accent);
+            btnHelp.Click += (s, e) => ModuleHelpProvider.ShowHelp("mainmenu", this);
+            sidebar.Controls.Add(btnHelp);
 
             var pageTitle = new Label
             {
@@ -190,6 +202,7 @@ namespace BGSK1
 
             Controls.Add(content);
             Controls.Add(sidebar);
+            ModuleHelpProvider.BindF11(this, "mainmenu");
             Load += MainMenuForm_Load;
         }
 

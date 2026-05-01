@@ -30,8 +30,7 @@ namespace BGSK1
             var btnAddType = LookupUiHelper.CreateAddLookupButton(152, 106, "Добавить тип техники", (s, e) => AddLookup(_cmbType, LookupDictionaryService.EquipmentType, "Новый тип техники"));
             _cmbLocation = new ComboBox { Left = 184, Top = 106, Width = 130, DropDownStyle = ComboBoxStyle.DropDown };
             var btnAddLoc = LookupUiHelper.CreateAddLookupButton(316, 106, "Добавить кабинет / локацию", (s, e) => AddLookup(_cmbLocation, LookupDictionaryService.Location, "Новая локация (кабинет)"));
-            _cmbResponsible = new ComboBox { Left = 348, Top = 106, Width = 130, DropDownStyle = ComboBoxStyle.DropDown };
-            var btnAddResp = LookupUiHelper.CreateAddLookupButton(482, 106, "Добавить ответственного", (s, e) => AddLookup(_cmbResponsible, LookupDictionaryService.EquipmentResponsible, "Новый ответственный (ФИО)"));
+            _cmbResponsible = new ComboBox { Left = 348, Top = 106, Width = 130, DropDownStyle = ComboBoxStyle.DropDownList };
 
             var btnCreate = new Button { Left = 20, Top = 218, Width = 240, Height = 34, Text = "Создать" };
             var btnCancel = new Button { Left = 280, Top = 218, Width = 240, Height = 34, Text = "Отмена" };
@@ -44,14 +43,14 @@ namespace BGSK1
             {
                 LabelAt("Инв. номер", 20, 20, 120), LabelAt("Наименование", 280, 20, 120),
                 LabelAt("Тип", 20, 78, 80), LabelAt("Локация", 184, 78, 90), LabelAt("Ответственный", 348, 78, 120),
-                _txtInv, _txtName, _cmbType, btnAddType, _cmbLocation, btnAddLoc, _cmbResponsible, btnAddResp, btnCreate, btnCancel
+                _txtInv, _txtName, _cmbType, btnAddType, _cmbLocation, btnAddLoc, _cmbResponsible, btnCreate, btnCancel
             });
 
             Load += (s, e) =>
             {
                 FillCombo(_cmbType, EquipmentService.GetTypeLookup());
                 FillCombo(_cmbLocation, EquipmentService.GetLocationLookup());
-                FillCombo(_cmbResponsible, EquipmentService.GetResponsibleLookup());
+                FillUsersCombo(_cmbResponsible);
             };
         }
 
@@ -64,7 +63,6 @@ namespace BGSK1
 
             FillCombo(_cmbType, EquipmentService.GetTypeLookup());
             FillCombo(_cmbLocation, EquipmentService.GetLocationLookup());
-            FillCombo(_cmbResponsible, EquipmentService.GetResponsibleLookup());
             combo.Text = value;
         }
 
@@ -93,6 +91,16 @@ namespace BGSK1
         private static Label LabelAt(string text, int left, int top, int width)
         {
             return ThemeHelper.FormFieldLabel(text, left, top, width);
+        }
+
+        private static void FillUsersCombo(ComboBox combo)
+        {
+            combo.Items.Clear();
+            var source = UserService.GetActiveUsersLookup();
+            foreach (DataRow row in source.Rows)
+            {
+                combo.Items.Add(row["FullName"].ToString());
+            }
         }
     }
 }

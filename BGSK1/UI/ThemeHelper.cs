@@ -6,7 +6,7 @@ namespace BGSK1.UI
     internal static class ThemeHelper
     {
         /// <summary>Высота подписи поля; фиксированная, чтобы текст не наезжал на TextBox.</summary>
-        public const int FormFieldLabelHeight = 20;
+        public const int FormFieldLabelHeight = 18;
 
         /// <summary>Подпись над полем ввода: одна строка, без перекрытия контрола снизу.</summary>
         public static Label FormFieldLabel(string text, int left, int top, int width, Color? foreColor = null)
@@ -20,7 +20,8 @@ namespace BGSK1.UI
                 Height = FormFieldLabelHeight,
                 AutoSize = false,
                 TextAlign = ContentAlignment.MiddleLeft,
-                ForeColor = foreColor ?? MutedText
+                ForeColor = foreColor ?? MutedText,
+                BackColor = Color.Transparent
             };
         }
 
@@ -101,6 +102,7 @@ namespace BGSK1.UI
                 else if (child is Label label)
                 {
                     label.ForeColor = IsDarkBackground(label.Parent?.BackColor ?? Surface) ? Color.White : Text;
+                    label.BackColor = Color.Transparent;
                 }
                 else if (child is TextBox textBox)
                 {

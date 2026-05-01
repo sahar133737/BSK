@@ -37,10 +37,24 @@ WHERE RoleId = @RoleId AND IsAllowed = 1;";
         public static DataTable GetPermissionsByRole(int roleId)
         {
             const string sql = @"
-SELECT PermissionKey, IsAllowed
-FROM dbo.RolePermissions
-WHERE RoleId = @RoleId
-ORDER BY PermissionKey;";
+WITH AllPermissions AS
+(
+    SELECT N'module.equipment' AS PermissionKey, 10 AS SortOrder UNION ALL
+    SELECT N'module.requests', 20 UNION ALL
+    SELECT N'module.maintenance', 30 UNION ALL
+    SELECT N'module.parts', 40 UNION ALL
+    SELECT N'module.users', 50 UNION ALL
+    SELECT N'module.reports', 60 UNION ALL
+    SELECT N'module.backups', 70 UNION ALL
+    SELECT N'module.admin', 80
+)
+SELECT p.PermissionKey,
+       CAST(ISNULL(rp.IsAllowed, 0) AS bit) AS IsAllowed
+FROM AllPermissions p
+LEFT JOIN dbo.RolePermissions rp
+    ON rp.RoleId = @RoleId
+   AND rp.PermissionKey = p.PermissionKey
+ORDER BY p.SortOrder;";
             return Db.ExecuteDataTable(sql, new SqlParameter("@RoleId", roleId));
         }
 

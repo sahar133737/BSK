@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using System.IO;
 using System.Windows.Forms;
 using BGSK1.Services;
 using BGSK1.UI;
@@ -12,6 +13,7 @@ namespace BGSK1
         private readonly TextBox _txtPassword;
         private readonly Button _btnLogin;
         private readonly Label _lblError;
+        private static readonly string LastLoginFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "last-login.txt");
 
         public LoginForm()
         {
@@ -44,11 +46,11 @@ namespace BGSK1
                 ForeColor = ThemeHelper.Text
             };
 
-            var lblEmail = new Label { Left = 24, Top = 64, Width = 120, Text = "Email:", ForeColor = ThemeHelper.MutedText };
-            _txtEmail = new TextBox { Left = 24, Top = 86, Width = 370, Text = "admin@bgsk.local", BorderStyle = BorderStyle.FixedSingle };
+            var lblEmail = ThemeHelper.FormFieldLabel("Логин:", 24, 60, 120, ThemeHelper.MutedText);
+            _txtEmail = new TextBox { Left = 24, Top = 82, Width = 370, BorderStyle = BorderStyle.FixedSingle };
 
-            var lblPassword = new Label { Left = 24, Top = 118, Width = 120, Text = "Пароль:", ForeColor = ThemeHelper.MutedText };
-            _txtPassword = new TextBox { Left = 24, Top = 140, Width = 370, PasswordChar = '*', Text = "Admin123!", BorderStyle = BorderStyle.FixedSingle };
+            var lblPassword = ThemeHelper.FormFieldLabel("Пароль:", 24, 114, 120, ThemeHelper.MutedText);
+            _txtPassword = new TextBox { Left = 24, Top = 136, Width = 370, PasswordChar = '*', BorderStyle = BorderStyle.FixedSingle };
 
             _btnLogin = new Button
             {
@@ -75,6 +77,7 @@ namespace BGSK1
             card.Controls.Add(_lblError);
 
             Controls.Add(card);
+            Shown += (s, e) => RestoreLastLogin();
         }
 
         private void BtnLogin_Click(object sender, EventArgs e)
@@ -83,20 +86,44 @@ namespace BGSK1
             var password = _txtPassword.Text;
             var ip = "127.0.0.1";
 
-            if (!UserService.IsValidEmail(email))
-            {
-                _lblError.Text = "Введите корректный email.";
-                return;
-            }
-
             if (AuthService.TryLogin(email, password, ip, out var error))
             {
+                SaveLastLogin(email);
                 DialogResult = DialogResult.OK;
                 Close();
                 return;
             }
 
             _lblError.Text = error;
+        }
+
+        private void RestoreLastLogin()
+        {
+            try
+            {
+                if (File.Exists(LastLoginFilePath))
+                {
+                    _txtEmail.Text = File.ReadAllText(LastLoginFilePath).Trim();
+                }
+            }
+            catch
+            {
+                // Игнорируем ошибки доступа: это вспомогательная функция.
+            }
+
+            _txtPassword.Text = string.Empty;
+        }
+
+        private static void SaveLastLogin(string login)
+        {
+            try
+            {
+                File.WriteAllText(LastLoginFilePath, login ?? string.Empty);
+            }
+            catch
+            {
+                // Игнорируем ошибки записи: вход в систему не должен из-за этого падать.
+            }
         }
     }
 }

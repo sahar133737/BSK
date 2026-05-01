@@ -89,7 +89,7 @@ WHERE Id = @Id;";
 
         public static void DeleteRequest(int id)
         {
-            Db.ExecuteNonQuery("DELETE FROM dbo.RepairRequestParts WHERE RequestId=@Id;", new SqlParameter("@Id", id));
+            RepairRequestPartsService.RemoveAllByRequest(id);
             Db.ExecuteNonQuery("DELETE FROM dbo.RepairRequests WHERE Id=@Id;", new SqlParameter("@Id", id));
             AuditService.LogChange("RepairRequests", "DELETE", id.ToString(), null, "{\"Deleted\":\"permanent\"}");
         }

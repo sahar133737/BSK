@@ -25,10 +25,13 @@ namespace BGSK1
             var top = new Panel { Dock = DockStyle.Top, Height = 52 };
             _cmbRoles = new ComboBox { Left = 12, Top = 12, Width = 260, DropDownStyle = ComboBoxStyle.DropDownList };
             var btnSave = new Button { Left = 278, Top = 10, Width = 180, Height = 30, Text = "Сохранить права" };
+            var btnHelp = new Button { Left = 464, Top = 10, Width = 100, Height = 30, Text = "Справка" };
             ThemeHelper.StyleButton(btnSave, ThemeHelper.Success);
+            ThemeHelper.StyleButton(btnHelp, ThemeHelper.Accent);
             btnSave.Click += BtnSave_Click;
+            btnHelp.Click += (s, e) => ModuleHelpProvider.ShowHelp("admin", this);
             _cmbRoles.SelectedIndexChanged += (s, e) => LoadPermissions();
-            top.Controls.AddRange(new Control[] { _cmbRoles, btnSave });
+            top.Controls.AddRange(new Control[] { _cmbRoles, btnSave, btnHelp });
 
             _grid = new DataGridView
             {
@@ -42,6 +45,7 @@ namespace BGSK1
 
             Controls.Add(_grid);
             Controls.Add(top);
+            ModuleHelpProvider.BindF11(this, "admin");
             Load += AdminPermissionsForm_Load;
         }
 
@@ -55,24 +59,17 @@ namespace BGSK1
 
         private void LoadPermissions()
         {
-            if (_cmbRoles.SelectedValue == null)
+            if (_cmbRoles.SelectedValue == null || _cmbRoles.SelectedValue is DataRowView)
             {
                 return;
             }
 
-            var roleId = Convert.ToInt32(_cmbRoles.SelectedValue);
-            var table = RolePermissionService.GetPermissionsByRole(roleId);
-
-            if (table.Rows.Count == 0)
+            int roleId;
+            if (!int.TryParse(_cmbRoles.SelectedValue.ToString(), out roleId))
             {
-                table.Rows.Add("module.equipment", true);
-                table.Rows.Add("module.requests", true);
-                table.Rows.Add("module.maintenance", true);
-                table.Rows.Add("module.parts", true);
-                table.Rows.Add("module.reports", false);
-                table.Rows.Add("module.backups", false);
-                table.Rows.Add("module.admin", false);
+                return;
             }
+            var table = RolePermissionService.GetPermissionsByRole(roleId);
 
             _grid.DataSource = table;
             if (_grid.Columns.Contains("PermissionKey"))

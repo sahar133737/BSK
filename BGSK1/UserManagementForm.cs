@@ -36,18 +36,21 @@ namespace BGSK1
             var btnUpdate = new Button { Left = 968, Top = 46, Width = 85, Height = 30, Text = "Обновить" };
             var btnDelete = new Button { Left = 1057, Top = 46, Width = 80, Height = 30, Text = "Удалить" };
             var btnResetPass = new Button { Left = 884, Top = 80, Width = 253, Height = 28, Text = "Сброс пароля" };
+            var btnHelp = new Button { Left = 800, Top = 80, Width = 80, Height = 28, Text = "Справка" };
             ThemeHelper.StyleButton(btnCreate, ThemeHelper.Primary);
             ThemeHelper.StyleButton(btnUpdate, ThemeHelper.Secondary);
             ThemeHelper.StyleButton(btnDelete, ThemeHelper.Danger);
             ThemeHelper.StyleButton(btnResetPass, ThemeHelper.Accent);
+            ThemeHelper.StyleButton(btnHelp, ThemeHelper.Accent);
             btnCreate.Click += BtnCreate_Click;
             btnUpdate.Click += BtnUpdate_Click;
             btnDelete.Click += BtnDelete_Click;
             btnResetPass.Click += BtnResetPass_Click;
+            btnHelp.Click += (s, e) => ModuleHelpProvider.ShowHelp("users", this);
             card.Controls.AddRange(new Control[]
             {
-                LabelAt("Email",12,20,210), LabelAt("ФИО",226,20,250), LabelAt("Роль",480,20,150), LabelAt("Новый пароль",728,20,150),
-                _txtEmail, _txtFullName, _cmbRole, _chkActive, _txtPassword, btnCreate, btnUpdate, btnDelete, btnResetPass
+                LabelAt("Логин",12,20,210), LabelAt("ФИО",226,20,250), LabelAt("Роль",480,20,150), LabelAt("Новый пароль",728,20,150),
+                _txtEmail, _txtFullName, _cmbRole, _chkActive, _txtPassword, btnCreate, btnUpdate, btnDelete, btnResetPass, btnHelp
             });
 
             var filter = new Panel { Dock = DockStyle.Top, Height = 44 };
@@ -74,6 +77,7 @@ namespace BGSK1
             Controls.Add(_grid);
             Controls.Add(filter);
             Controls.Add(card);
+            ModuleHelpProvider.BindF11(this, "users");
             Load += UserManagementForm_Load;
         }
 
@@ -121,12 +125,12 @@ namespace BGSK1
         {
             if (string.IsNullOrWhiteSpace(_txtEmail.Text) || string.IsNullOrWhiteSpace(_txtPassword.Text))
             {
-                MessageBox.Show("Заполните email и пароль.", "Валидация", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Заполните логин и пароль.", "Валидация", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-            if (!UserService.IsValidEmail(_txtEmail.Text))
+            if (!UserService.IsValidLogin(_txtEmail.Text))
             {
-                MessageBox.Show("Введите корректный email (пример: user@domain.ru).", "Валидация", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Логин не может быть пустым.", "Валидация", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
             if (!UserService.IsStrongPassword(_txtPassword.Text))
@@ -151,9 +155,9 @@ namespace BGSK1
             {
                 return;
             }
-            if (!UserService.IsValidEmail(_txtEmail.Text))
+            if (!UserService.IsValidLogin(_txtEmail.Text))
             {
-                MessageBox.Show("Введите корректный email.", "Валидация", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Логин не может быть пустым.", "Валидация", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
             try

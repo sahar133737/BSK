@@ -34,13 +34,16 @@ namespace BGSK1
             _txtComment = new TextBox { Left = 12, Top = 92, Width = 420 };
             var btnCreate = new Button { Left = 448, Top = 90, Width = 100, Height = 30, Text = "Создать" };
             var btnRestore = new Button { Left = 556, Top = 90, Width = 120, Height = 30, Text = "Восстановить" };
+            var btnHelp = new Button { Left = 684, Top = 90, Width = 120, Height = 30, Text = "Справка" };
             ThemeHelper.StyleButton(btnCreate, ThemeHelper.Primary);
             ThemeHelper.StyleButton(btnRestore, ThemeHelper.Accent);
+            ThemeHelper.StyleButton(btnHelp, ThemeHelper.Accent);
             btnCreate.Click += BtnCreate_Click;
             btnRestore.Click += BtnRestore_Click;
+            btnHelp.Click += (s, e) => ModuleHelpProvider.ShowHelp("backup", this);
             top.Controls.AddRange(new Control[]
             {
-                lblPath, _txtPath, btnFileMenu, lblComment, _txtComment, btnCreate, btnRestore
+                lblPath, _txtPath, btnFileMenu, lblComment, _txtComment, btnCreate, btnRestore, btnHelp
             });
 
             _grid = new DataGridView
@@ -57,6 +60,7 @@ namespace BGSK1
             Controls.Add(top);
             Controls.Add(_grid);
             top.BringToFront();
+            ModuleHelpProvider.BindF11(this, "backup");
             Load += (s, e) => LoadData();
         }
 

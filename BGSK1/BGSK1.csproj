@@ -101,6 +101,7 @@
     <Compile Include="Security\PasswordHasher.cs" />
     <Compile Include="UI\GridHeaderMap.cs" />
     <Compile Include="UI\LookupUiHelper.cs" />
+    <Compile Include="UI\ModuleHelpProvider.cs" />
     <Compile Include="UI\ThemeHelper.cs" />
     <Compile Include="Services\AuthService.cs" />
     <Compile Include="Services\AuditService.cs" />
