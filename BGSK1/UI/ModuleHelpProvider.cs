@@ -5,7 +5,7 @@ namespace BGSK1.UI
 {
     internal static class ModuleHelpProvider
     {
-        private const string VkContact = "vk.com/id695275682";
+        private const string VkContact = "@imrewer";
 
         private static readonly Dictionary<string, string> HelpTexts = new Dictionary<string, string>
         {
