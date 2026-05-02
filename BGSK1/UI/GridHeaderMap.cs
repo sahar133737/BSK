@@ -86,13 +86,14 @@ namespace BGSK1.UI
                 new Dictionary<string, string>
                 {
                     { "Email", "Логин" }, { "FullName", "ФИО" }, { "RoleName", "Роль" },
-                    { "IsActive", "Активен" }, { "RegistrationDate", "Дата регистрации" }
+                    { "RegistrationDate", "Дата регистрации" }
                 }
             },
             {
                 "dashboardRecentRequests",
                 new Dictionary<string, string>
                 {
+                    { "Id", "Код" },
                     { "RequestNumber", "Номер заявки" }, { "CreatedAt", "Дата создания" },
                     { "StatusName", "Статус" }, { "PriorityName", "Приоритет" }, { "AssignedTo", "Исполнитель" }
                 }

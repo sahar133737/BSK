@@ -10,11 +10,6 @@ namespace BGSK1
     {
         private readonly DataGridView _grid;
         private readonly TextBox _txtSearch;
-        private readonly TextBox _txtInv;
-        private readonly TextBox _txtName;
-        private readonly ComboBox _cmbType;
-        private readonly ComboBox _cmbLocation;
-        private readonly ComboBox _cmbResponsible;
 
         public EquipmentForm()
         {
@@ -27,18 +22,20 @@ namespace BGSK1
                 Shown += (s, e) => { MessageBox.Show("Нет доступа к модулю.", "Доступ запрещен", MessageBoxButtons.OK, MessageBoxIcon.Warning); Close(); };
             }
 
-            var card = new GroupBox { Dock = DockStyle.Top, Height = 114, Text = "  Карточка оборудования  " };
-            _txtInv = new TextBox { Left = 16, Top = 48, Width = 140 };
-            _txtName = new TextBox { Left = 164, Top = 48, Width = 240 };
-            _cmbType = new ComboBox { Left = 412, Top = 48, Width = 124, DropDownStyle = ComboBoxStyle.DropDown };
-            var btnAddType = LookupUiHelper.CreateAddLookupButton(538, 48, "Добавить тип техники в справочник", (s, e) => AddLookupAndRefresh(_cmbType, LookupDictionaryService.EquipmentType, "Новый тип техники"));
-            _cmbLocation = new ComboBox { Left = 570, Top = 48, Width = 136, DropDownStyle = ComboBoxStyle.DropDown };
-            var btnAddLocation = LookupUiHelper.CreateAddLookupButton(708, 48, "Добавить кабинет / локацию", (s, e) => AddLookupAndRefresh(_cmbLocation, LookupDictionaryService.Location, "Новая локация (кабинет)"));
-            _cmbResponsible = new ComboBox { Left = 740, Top = 48, Width = 152, DropDownStyle = ComboBoxStyle.DropDownList };
-            var btnAdd = new Button { Left = 928, Top = 46, Width = 110, Height = 30, Text = "Добавить" };
-            var btnUpdate = new Button { Left = 1044, Top = 46, Width = 110, Height = 30, Text = "Обновить" };
-            var btnDelete = new Button { Left = 928, Top = 80, Width = 226, Height = 24, Text = "Удалить запись" };
-            var btnHelp = new Button { Left = 1044, Top = 80, Width = 110, Height = 24, Text = "Справка" };
+            var card = new GroupBox { Dock = DockStyle.Top, Height = 100, Text = "  Техника  " };
+            var lblHint = new Label
+            {
+                Left = 16,
+                Top = 22,
+                Width = 980,
+                Height = 32,
+                ForeColor = ThemeHelper.MutedText,
+                Text = "Выберите строку в таблице. «Добавить» и «Обновить» открывают форму ввода; типы и локации задаются внутри этих форм."
+            };
+            var btnAdd = new Button { Left = 16, Top = 56, Width = 120, Height = 30, Text = "Добавить" };
+            var btnUpdate = new Button { Left = 142, Top = 56, Width = 120, Height = 30, Text = "Обновить" };
+            var btnDelete = new Button { Left = 268, Top = 56, Width = 200, Height = 30, Text = "Удалить запись" };
+            var btnHelp = new Button { Left = 474, Top = 56, Width = 120, Height = 30, Text = "Справка" };
             ThemeHelper.StyleButton(btnAdd, ThemeHelper.Primary);
             ThemeHelper.StyleButton(btnUpdate, ThemeHelper.Secondary);
             ThemeHelper.StyleButton(btnDelete, ThemeHelper.Danger);
@@ -47,12 +44,7 @@ namespace BGSK1
             btnUpdate.Click += BtnUpdate_Click;
             btnDelete.Click += BtnDelete_Click;
             btnHelp.Click += (s, e) => ModuleHelpProvider.ShowHelp("equipment", this);
-            card.Controls.AddRange(new Control[]
-            {
-                LabelAt("Инв. номер", 16, 20, 140), LabelAt("Наименование", 164, 20, 240), LabelAt("Тип", 412, 20, 124),
-                LabelAt("Локация", 568, 20, 136), LabelAt("Ответственный", 740, 20, 152),
-                _txtInv, _txtName, _cmbType, btnAddType, _cmbLocation, btnAddLocation, _cmbResponsible, btnAdd, btnUpdate, btnDelete, btnHelp
-            });
+            card.Controls.AddRange(new Control[] { lblHint, btnAdd, btnUpdate, btnDelete, btnHelp });
 
             var top = new Panel { Dock = DockStyle.Top, Height = 48 };
             _txtSearch = new TextBox { Left = 12, Top = 12, Width = 320 };
@@ -73,7 +65,7 @@ namespace BGSK1
                 SelectionMode = DataGridViewSelectionMode.FullRowSelect
             };
             ThemeHelper.StyleGrid(_grid);
-            _grid.SelectionChanged += Grid_SelectionChanged;
+            _grid.CellDoubleClick += Grid_CellDoubleClick;
 
             Controls.Add(_grid);
             Controls.Add(top);
@@ -86,48 +78,6 @@ namespace BGSK1
         {
             _grid.DataSource = EquipmentService.GetEquipment();
             ConfigureGrid();
-            BindLookups();
-        }
-
-        private void BindLookups()
-        {
-            FillCombo(_cmbType, EquipmentService.GetTypeLookup());
-            FillCombo(_cmbLocation, EquipmentService.GetLocationLookup());
-            FillUsersCombo(_cmbResponsible);
-        }
-
-        private void AddLookupAndRefresh(ComboBox combo, string category, string dialogTitle)
-        {
-            if (!LookupUiHelper.TryPromptAndAddValue(this, category, dialogTitle, out var value))
-            {
-                return;
-            }
-
-            BindLookups();
-            combo.Text = value;
-        }
-
-        private static void FillCombo(ComboBox combo, DataTable source)
-        {
-            var current = combo.Text;
-            combo.Items.Clear();
-            foreach (DataRow row in source.Rows)
-            {
-                combo.Items.Add(row["Value"].ToString());
-            }
-            combo.Text = current;
-        }
-
-        private static void FillUsersCombo(ComboBox combo)
-        {
-            var current = combo.Text;
-            var source = UserService.GetActiveUsersLookup();
-            combo.Items.Clear();
-            foreach (DataRow row in source.Rows)
-            {
-                combo.Items.Add(row["FullName"].ToString());
-            }
-            combo.Text = current;
         }
 
         private void ApplySearch()
@@ -148,18 +98,14 @@ namespace BGSK1
             GridHeaderMap.Apply(_grid, "equipment", "Id");
         }
 
-        private void Grid_SelectionChanged(object sender, EventArgs e)
+        private void Grid_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (_grid.CurrentRow == null)
+            if (e.RowIndex < 0)
             {
                 return;
             }
 
-            _txtInv.Text = _grid.CurrentRow.Cells["InventoryNumber"]?.Value?.ToString() ?? string.Empty;
-            _txtName.Text = _grid.CurrentRow.Cells["Name"]?.Value?.ToString() ?? string.Empty;
-            _cmbType.Text = _grid.CurrentRow.Cells["TypeName"]?.Value?.ToString() ?? string.Empty;
-            _cmbLocation.Text = _grid.CurrentRow.Cells["LocationName"]?.Value?.ToString() ?? string.Empty;
-            _cmbResponsible.Text = _grid.CurrentRow.Cells["ResponsiblePerson"]?.Value?.ToString() ?? string.Empty;
+            BtnUpdate_Click(sender, e);
         }
 
         private void BtnAdd_Click(object sender, EventArgs e)
@@ -224,9 +170,5 @@ namespace BGSK1
             }
         }
 
-        private static Label LabelAt(string text, int left, int top, int width)
-        {
-            return ThemeHelper.FormFieldLabel(text, left, top, width);
-        }
     }
 }

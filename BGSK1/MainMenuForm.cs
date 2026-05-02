@@ -1,4 +1,5 @@
 using System;
+using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
 using BGSK1.Security;
@@ -132,30 +133,25 @@ namespace BGSK1
             };
             quickPanel.Controls.Add(quickTitle);
 
-            var btnQuickRequest = new Button { Left = 12, Top = 40, Width = 220, Height = 32, Text = "Открыть модуль заявок" };
-            ThemeHelper.StyleButton(btnQuickRequest, ThemeHelper.Primary);
-            btnQuickRequest.Click += (s, e) => OpenModule(new RequestsForm());
+            var btnQuickNewRequest = new Button { Left = 12, Top = 40, Width = 300, Height = 32, Text = "Создать заявку на ремонт" };
+            ThemeHelper.StyleButton(btnQuickNewRequest, ThemeHelper.Primary);
+            btnQuickNewRequest.Enabled = RolePermissionService.HasPermission("module.requests");
+            btnQuickNewRequest.Click += BtnQuickNewRequest_Click;
 
-            var btnQuickEquipment = new Button { Left = 238, Top = 40, Width = 220, Height = 32, Text = "Открыть модуль техники" };
-            ThemeHelper.StyleButton(btnQuickEquipment, ThemeHelper.Secondary);
-            btnQuickEquipment.Click += (s, e) => OpenModule(new EquipmentForm());
+            var btnQuickRestore = new Button { Left = 318, Top = 40, Width = 300, Height = 32, Text = "Восстановить БД из файла .bak" };
+            ThemeHelper.StyleButton(btnQuickRestore, ThemeHelper.Accent);
+            btnQuickRestore.Enabled = RolePermissionService.HasPermission("module.backups");
+            btnQuickRestore.Click += BtnQuickRestoreBackup_Click;
 
-            var btnQuickBackup = new Button { Left = 464, Top = 40, Width = 220, Height = 32, Text = "Открыть модуль бэкапов" };
-            ThemeHelper.StyleButton(btnQuickBackup, ThemeHelper.Accent);
-            btnQuickBackup.Click += (s, e) => OpenModule(new BackupForm());
-
-            var btnQuickMaintenance = new Button { Left = 690, Top = 40, Width = 140, Height = 32, Text = "Плановое ТО" };
-            ThemeHelper.StyleButton(btnQuickMaintenance, ThemeHelper.Primary);
-            btnQuickMaintenance.Click += (s, e) => OpenModule(new MaintenanceForm());
-
-            var btnQuickParts = new Button { Left = 836, Top = 40, Width = 146, Height = 32, Text = "Запчасти" };
-            ThemeHelper.StyleButton(btnQuickParts, ThemeHelper.Secondary);
-            btnQuickParts.Click += (s, e) => OpenModule(new PartsForm());
+            var btnQuickBackupNow = new Button { Left = 624, Top = 40, Width = 358, Height = 32, Text = "Сделать резервную копию (в стандартную папку)" };
+            ThemeHelper.StyleButton(btnQuickBackupNow, ThemeHelper.Secondary);
+            btnQuickBackupNow.Enabled = RolePermissionService.HasPermission("module.backups");
+            btnQuickBackupNow.Click += BtnQuickBackupNow_Click;
 
             quickPanel.Controls.AddRange(new Control[]
             {
-                LabelInline("Создание записей выполняется внутри модулей.", 12, 82, 430),
-                btnQuickRequest, btnQuickEquipment, btnQuickBackup, btnQuickMaintenance, btnQuickParts
+                LabelInline("Быстрые сценарии без дублирования пунктов меню слева.", 12, 82, 520),
+                btnQuickNewRequest, btnQuickRestore, btnQuickBackupNow
             });
             content.Controls.Add(quickPanel);
 
@@ -198,6 +194,7 @@ namespace BGSK1
             };
             ThemeHelper.StyleGrid(_gridRecentRequests);
             _gridRecentRequests.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            _gridRecentRequests.CellDoubleClick += GridRecentRequests_CellDoubleClick;
             content.Controls.Add(_gridRecentRequests);
 
             Controls.Add(content);
@@ -249,7 +246,7 @@ namespace BGSK1
             SetLowStockKpiLook(lowStockCritical, lowStockSoon);
 
             _gridRecentRequests.DataSource = DashboardService.GetRecentRequests();
-            GridHeaderMap.Apply(_gridRecentRequests, "dashboardRecentRequests");
+            GridHeaderMap.Apply(_gridRecentRequests, "dashboardRecentRequests", "Id");
 
             ApplyPartsStockAlerts(lowStockCritical, lowStockSoon);
 
@@ -329,6 +326,92 @@ namespace BGSK1
             }
 
             _lowStockKpiTip.SetToolTip(_lblLowStockCount, tip);
+        }
+
+        private void GridRecentRequests_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0 || !_gridRecentRequests.Columns.Contains("Id"))
+            {
+                return;
+            }
+
+            if (!RolePermissionService.HasPermission("module.requests"))
+            {
+                return;
+            }
+
+            var raw = _gridRecentRequests.Rows[e.RowIndex].Cells["Id"].Value;
+            if (raw == null || raw == DBNull.Value)
+            {
+                return;
+            }
+
+            RequestsForm.PendingEditRequestId = Convert.ToInt32(raw);
+            OpenModule(new RequestsForm());
+        }
+
+        private void BtnQuickNewRequest_Click(object sender, EventArgs e)
+        {
+            using (var dialog = new RequestCreateForm())
+            {
+                dialog.ShowDialog(this);
+            }
+
+            RefreshDashboard();
+        }
+
+        private void BtnQuickRestoreBackup_Click(object sender, EventArgs e)
+        {
+            using (var dialog = new OpenFileDialog())
+            {
+                dialog.Filter = "Файлы резервных копий (*.bak)|*.bak";
+                dialog.InitialDirectory = BackupService.GetRecommendedBackupDirectory();
+                if (dialog.ShowDialog(this) != DialogResult.OK)
+                {
+                    return;
+                }
+
+                if (MessageBox.Show(this, "Восстановление перезапишет текущие данные в базе. Продолжить?", "Подтверждение", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
+                {
+                    return;
+                }
+
+                try
+                {
+                    BackupService.RestoreBackup(dialog.FileName);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(this, ex.Message, "Ошибка восстановления", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                MessageBox.Show(this, "Восстановление завершено.", "Готово", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+
+            RefreshDashboard();
+        }
+
+        private void BtnQuickBackupNow_Click(object sender, EventArgs e)
+        {
+            var path = BackupService.GetDefaultBackupFilePath($"BGSK1_quick_{DateTime.Now:yyyyMMdd_HHmmss}.bak");
+            try
+            {
+                BackupService.CreateBackupToFile(path, "Быстрое резервное копирование с главного экрана", false);
+            }
+            catch (InvalidOperationException ex)
+            {
+                MessageBox.Show(this, ex.Message, "Резервное копирование", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this, ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            MessageBox.Show(this, $"Копия сохранена:\n{path}", "Готово", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            RefreshDashboard();
         }
 
         private void OpenModule(Form moduleForm)

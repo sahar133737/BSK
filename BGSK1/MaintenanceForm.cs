@@ -11,12 +11,6 @@ namespace BGSK1
         private readonly DataGridView _grid;
         private readonly CheckBox _chkOverdue;
         private readonly TextBox _txtSearch;
-        private readonly ComboBox _cmbEquipment;
-        private readonly ComboBox _cmbType;
-        private readonly NumericUpDown _numPeriod;
-        private readonly DateTimePicker _dtNext;
-        private readonly ComboBox _cmbResponsible;
-        private readonly CheckBox _chkActive;
 
         public MaintenanceForm()
         {
@@ -30,18 +24,20 @@ namespace BGSK1
                 Shown += (s, e) => { MessageBox.Show("Нет доступа к модулю.", "Доступ запрещен", MessageBoxButtons.OK, MessageBoxIcon.Warning); Close(); };
             }
 
-            var card = new GroupBox { Dock = DockStyle.Top, Height = 128, Text = "  Карточка плана ТО  " };
-            _cmbEquipment = new ComboBox { Left = 12, Top = 48, Width = 260, DropDownStyle = ComboBoxStyle.DropDownList };
-            _cmbType = new ComboBox { Left = 278, Top = 48, Width = 120, DropDownStyle = ComboBoxStyle.DropDown };
-            var btnAddMaintType = LookupUiHelper.CreateAddLookupButton(400, 48, "Добавить вид ТО", (s, e) => AddLookupAndRefresh(_cmbType, LookupDictionaryService.MaintenanceType, "Новый вид планового ТО"));
-            _numPeriod = new NumericUpDown { Left = 434, Top = 48, Width = 90, Minimum = 1, Maximum = 365, Value = 30 };
-            _dtNext = new DateTimePicker { Left = 530, Top = 48, Width = 150 };
-            _cmbResponsible = new ComboBox { Left = 686, Top = 48, Width = 145, DropDownStyle = ComboBoxStyle.DropDownList };
-            _chkActive = new CheckBox { Left = 870, Top = 51, Width = 80, Text = "Активен", Checked = true };
-            var btnAdd = new Button { Left = 12, Top = 82, Width = 120, Height = 28, Text = "Добавить" };
-            var btnUpdate = new Button { Left = 138, Top = 82, Width = 120, Height = 28, Text = "Обновить" };
-            var btnDelete = new Button { Left = 266, Top = 82, Width = 200, Height = 28, Text = "Удалить запись" };
-            var btnHelp = new Button { Left = 472, Top = 82, Width = 120, Height = 28, Text = "Справка" };
+            var card = new GroupBox { Dock = DockStyle.Top, Height = 100, Text = "  Плановое ТО  " };
+            var lblHint = new Label
+            {
+                Left = 12,
+                Top = 22,
+                Width = 900,
+                Height = 32,
+                ForeColor = ThemeHelper.MutedText,
+                Text = "Выберите строку в таблице. Данные вносятся в отдельных окнах «Добавить» / «Обновить»."
+            };
+            var btnAdd = new Button { Left = 12, Top = 56, Width = 120, Height = 30, Text = "Добавить" };
+            var btnUpdate = new Button { Left = 138, Top = 56, Width = 120, Height = 30, Text = "Обновить" };
+            var btnDelete = new Button { Left = 266, Top = 56, Width = 200, Height = 30, Text = "Удалить запись" };
+            var btnHelp = new Button { Left = 472, Top = 56, Width = 120, Height = 30, Text = "Справка" };
             ThemeHelper.StyleButton(btnAdd, ThemeHelper.Primary);
             ThemeHelper.StyleButton(btnUpdate, ThemeHelper.Secondary);
             ThemeHelper.StyleButton(btnDelete, ThemeHelper.Danger);
@@ -50,12 +46,7 @@ namespace BGSK1
             btnUpdate.Click += BtnUpdate_Click;
             btnDelete.Click += BtnDelete_Click;
             btnHelp.Click += (s, e) => ModuleHelpProvider.ShowHelp("maintenance", this);
-            card.Controls.AddRange(new Control[]
-            {
-                LabelAt("Техника",12,20,260), LabelAt("Вид ТО",278,20,120), LabelAt("Период (дн.)",434,20,90),
-                LabelAt("Следующая дата",530,20,150), LabelAt("Ответственный",686,20,145),
-                _cmbEquipment,_cmbType,btnAddMaintType,_numPeriod,_dtNext,_cmbResponsible,_chkActive,btnAdd,btnUpdate,btnDelete,btnHelp
-            });
+            card.Controls.AddRange(new Control[] { lblHint, btnAdd, btnUpdate, btnDelete, btnHelp });
 
             var top = new Panel { Dock = DockStyle.Top, Height = 46 };
             _chkOverdue = new CheckBox { Left = 12, Top = 14, Width = 280, Text = "Только просроченные планы ТО" };
@@ -77,10 +68,11 @@ namespace BGSK1
                 AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
                 RowHeadersVisible = false,
                 AllowUserToAddRows = false,
-                AllowUserToDeleteRows = false
+                AllowUserToDeleteRows = false,
+                SelectionMode = DataGridViewSelectionMode.FullRowSelect
             };
             ThemeHelper.StyleGrid(_grid);
-            _grid.SelectionChanged += Grid_SelectionChanged;
+            _grid.CellDoubleClick += Grid_CellDoubleClick;
 
             Controls.Add(_grid);
             Controls.Add(top);
@@ -104,12 +96,17 @@ namespace BGSK1
                 _grid.DataSource = table;
             }
 
-            _cmbEquipment.DataSource = EquipmentService.GetEquipmentLookup();
-            _cmbEquipment.DisplayMember = "DisplayName";
-            _cmbEquipment.ValueMember = "Id";
-            BindLookups();
+            GridHeaderMap.Apply(_grid, "maintenance", "Id", "IsActive", "EquipmentId");
+        }
 
-            GridHeaderMap.Apply(_grid, "maintenance", "Id", "IsActive");
+        private void Grid_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0)
+            {
+                return;
+            }
+
+            BtnUpdate_Click(sender, e);
         }
 
         private void BtnAdd_Click(object sender, EventArgs e)
@@ -133,6 +130,11 @@ namespace BGSK1
 
             var id = Convert.ToInt32(_grid.CurrentRow.Cells["Id"].Value);
             var equipmentId = ResolveEquipmentIdForCurrentRow();
+            if (equipmentId <= 0)
+            {
+                MessageBox.Show("Не удалось определить технику для плана ТО.", "Внимание", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
             DateTime nextDate;
             DateTime.TryParse(_grid.CurrentRow.Cells["NextDate"]?.Value?.ToString(), out nextDate);
             using (var dialog = new MaintenanceEditForm(
@@ -168,32 +170,18 @@ namespace BGSK1
             LoadData();
         }
 
-        private void Grid_SelectionChanged(object sender, EventArgs e)
-        {
-            if (_grid.CurrentRow == null)
-            {
-                return;
-            }
-
-            if (_grid.Columns.Contains("MaintenanceType")) _cmbType.Text = _grid.CurrentRow.Cells["MaintenanceType"]?.Value?.ToString() ?? string.Empty;
-            if (_grid.Columns.Contains("PeriodDays")) _numPeriod.Value = Convert.ToDecimal(_grid.CurrentRow.Cells["PeriodDays"]?.Value ?? 30);
-            if (_grid.Columns.Contains("NextDate"))
-            {
-                DateTime dt;
-                if (DateTime.TryParse(_grid.CurrentRow.Cells["NextDate"]?.Value?.ToString(), out dt)) _dtNext.Value = dt;
-            }
-            if (_grid.Columns.Contains("ResponsiblePerson")) _cmbResponsible.Text = _grid.CurrentRow.Cells["ResponsiblePerson"]?.Value?.ToString() ?? string.Empty;
-            if (_grid.Columns.Contains("IsActive")) _chkActive.Checked = Convert.ToBoolean(_grid.CurrentRow.Cells["IsActive"]?.Value ?? true);
-        }
-
-        private static Label LabelAt(string text, int left, int top, int width)
-        {
-            return ThemeHelper.FormFieldLabel(text, left, top, width);
-        }
-
         private int ResolveEquipmentIdForCurrentRow()
         {
-            var displayInv = _grid.CurrentRow.Cells["InventoryNumber"]?.Value?.ToString() ?? string.Empty;
+            if (_grid.Columns.Contains("EquipmentId") && _grid.CurrentRow != null)
+            {
+                var v = _grid.CurrentRow.Cells["EquipmentId"].Value;
+                if (v != null && v != DBNull.Value)
+                {
+                    return Convert.ToInt32(v);
+                }
+            }
+
+            var displayInv = _grid.CurrentRow?.Cells["InventoryNumber"]?.Value?.ToString() ?? string.Empty;
             var lookup = EquipmentService.GetEquipmentLookup();
             foreach (DataRow row in lookup.Rows)
             {
@@ -203,47 +191,8 @@ namespace BGSK1
                     return Convert.ToInt32(row["Id"]);
                 }
             }
-            return Convert.ToInt32(_cmbEquipment.SelectedValue);
-        }
 
-        private void BindLookups()
-        {
-            FillCombo(_cmbType, MaintenanceService.GetMaintenanceTypeLookup());
-            FillUsersCombo(_cmbResponsible);
-        }
-
-        private void AddLookupAndRefresh(ComboBox combo, string category, string dialogTitle)
-        {
-            if (!LookupUiHelper.TryPromptAndAddValue(this, category, dialogTitle, out var value))
-            {
-                return;
-            }
-
-            BindLookups();
-            combo.Text = value;
-        }
-
-        private static void FillCombo(ComboBox combo, DataTable source)
-        {
-            var current = combo.Text;
-            combo.Items.Clear();
-            foreach (DataRow row in source.Rows)
-            {
-                combo.Items.Add(row["Value"].ToString());
-            }
-            combo.Text = current;
-        }
-
-        private static void FillUsersCombo(ComboBox combo)
-        {
-            var current = combo.Text;
-            combo.Items.Clear();
-            var source = UserService.GetActiveUsersLookup();
-            foreach (DataRow row in source.Rows)
-            {
-                combo.Items.Add(row["FullName"].ToString());
-            }
-            combo.Text = current;
+            return 0;
         }
     }
 }

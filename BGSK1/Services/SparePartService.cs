@@ -16,6 +16,17 @@ ORDER BY PartName;";
             return Db.ExecuteDataTable(sql);
         }
 
+        /// <summary>Одна строка номенклатуры для карточки редактирования; null если не найдена.</summary>
+        public static DataRow TryGetPartRow(int id)
+        {
+            const string sql = @"
+SELECT Id, PartName, PartNumber, QuantityInStock, MinQuantity
+FROM dbo.SpareParts
+WHERE Id = @Id;";
+            var t = Db.ExecuteDataTable(sql, new SqlParameter("@Id", id));
+            return t.Rows.Count == 0 ? null : t.Rows[0];
+        }
+
         public static void AddPart(string partName, string partNumber, int quantity, int minQuantity, string unitName)
         {
             const string sql = @"

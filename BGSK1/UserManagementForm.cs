@@ -12,7 +12,6 @@ namespace BGSK1
         private readonly TextBox _txtEmail;
         private readonly TextBox _txtFullName;
         private readonly ComboBox _cmbRole;
-        private readonly CheckBox _chkActive;
         private readonly TextBox _txtPassword;
         private readonly TextBox _txtSearch;
 
@@ -30,13 +29,12 @@ namespace BGSK1
             _txtEmail = new TextBox { Left = 12, Top = 48, Width = 210 };
             _txtFullName = new TextBox { Left = 226, Top = 48, Width = 250 };
             _cmbRole = new ComboBox { Left = 480, Top = 48, Width = 150, DropDownStyle = ComboBoxStyle.DropDownList };
-            _chkActive = new CheckBox { Left = 634, Top = 51, Width = 90, Text = "Активен", Checked = true };
-            _txtPassword = new TextBox { Left = 728, Top = 48, Width = 150, PasswordChar = '*' };
-            var btnCreate = new Button { Left = 884, Top = 46, Width = 80, Height = 30, Text = "Создать" };
-            var btnUpdate = new Button { Left = 968, Top = 46, Width = 85, Height = 30, Text = "Обновить" };
-            var btnDelete = new Button { Left = 1057, Top = 46, Width = 80, Height = 30, Text = "Удалить" };
-            var btnResetPass = new Button { Left = 884, Top = 80, Width = 253, Height = 28, Text = "Сброс пароля" };
-            var btnHelp = new Button { Left = 800, Top = 80, Width = 80, Height = 28, Text = "Справка" };
+            _txtPassword = new TextBox { Left = 638, Top = 48, Width = 150, PasswordChar = '*' };
+            var btnCreate = new Button { Left = 794, Top = 46, Width = 80, Height = 30, Text = "Создать" };
+            var btnUpdate = new Button { Left = 878, Top = 46, Width = 85, Height = 30, Text = "Обновить" };
+            var btnDelete = new Button { Left = 967, Top = 46, Width = 80, Height = 30, Text = "Удалить" };
+            var btnResetPass = new Button { Left = 794, Top = 80, Width = 253, Height = 28, Text = "Сброс пароля" };
+            var btnHelp = new Button { Left = 1050, Top = 80, Width = 80, Height = 28, Text = "Справка" };
             ThemeHelper.StyleButton(btnCreate, ThemeHelper.Primary);
             ThemeHelper.StyleButton(btnUpdate, ThemeHelper.Secondary);
             ThemeHelper.StyleButton(btnDelete, ThemeHelper.Danger);
@@ -49,8 +47,8 @@ namespace BGSK1
             btnHelp.Click += (s, e) => ModuleHelpProvider.ShowHelp("users", this);
             card.Controls.AddRange(new Control[]
             {
-                LabelAt("Логин",12,20,210), LabelAt("ФИО",226,20,250), LabelAt("Роль",480,20,150), LabelAt("Новый пароль",728,20,150),
-                _txtEmail, _txtFullName, _cmbRole, _chkActive, _txtPassword, btnCreate, btnUpdate, btnDelete, btnResetPass, btnHelp
+                LabelAt("Логин",12,20,210), LabelAt("ФИО",226,20,250), LabelAt("Роль",480,20,150), LabelAt("Новый пароль",638,20,150),
+                _txtEmail, _txtFullName, _cmbRole, _txtPassword, btnCreate, btnUpdate, btnDelete, btnResetPass, btnHelp
             });
 
             var filter = new Panel { Dock = DockStyle.Top, Height = 44 };
@@ -92,7 +90,7 @@ namespace BGSK1
         private void LoadData()
         {
             _grid.DataSource = UserService.GetUsers();
-            GridHeaderMap.Apply(_grid, "users", "Id", "IsDeleted");
+            GridHeaderMap.Apply(_grid, "users", "Id", "IsDeleted", "IsActive");
         }
 
         private void ApplySearch()
@@ -105,7 +103,7 @@ namespace BGSK1
                 view.RowFilter = $"Email LIKE '%{s}%' OR FullName LIKE '%{s}%' OR RoleName LIKE '%{s}%'";
             }
             _grid.DataSource = view.ToTable();
-            GridHeaderMap.Apply(_grid, "users", "Id", "IsDeleted");
+            GridHeaderMap.Apply(_grid, "users", "Id", "IsDeleted", "IsActive");
         }
 
         private void Grid_SelectionChanged(object sender, EventArgs e)
@@ -117,7 +115,6 @@ namespace BGSK1
 
             _txtEmail.Text = _grid.CurrentRow.Cells["Email"]?.Value?.ToString() ?? string.Empty;
             _txtFullName.Text = _grid.CurrentRow.Cells["FullName"]?.Value?.ToString() ?? string.Empty;
-            _chkActive.Checked = Convert.ToBoolean(_grid.CurrentRow.Cells["IsActive"]?.Value ?? true);
             _cmbRole.Text = _grid.CurrentRow.Cells["RoleName"]?.Value?.ToString() ?? string.Empty;
         }
 
@@ -163,7 +160,8 @@ namespace BGSK1
             try
             {
                 var id = Convert.ToInt32(_grid.CurrentRow.Cells["Id"].Value);
-                UserService.UpdateUser(id, _txtEmail.Text.Trim(), _txtFullName.Text.Trim(), Convert.ToInt32(_cmbRole.SelectedValue), _chkActive.Checked);
+                var isActive = Convert.ToBoolean(_grid.CurrentRow.Cells["IsActive"]?.Value ?? true);
+                UserService.UpdateUser(id, _txtEmail.Text.Trim(), _txtFullName.Text.Trim(), Convert.ToInt32(_cmbRole.SelectedValue), isActive);
                 LoadData();
             }
             catch (Exception ex)

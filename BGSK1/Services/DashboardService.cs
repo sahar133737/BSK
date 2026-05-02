@@ -54,6 +54,7 @@ WHERE QuantityInStock > MinQuantity
         {
             const string sql = @"
 SELECT TOP 12
+    Id,
     RequestNumber,
     CreatedAt,
     StatusName,

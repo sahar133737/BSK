@@ -17,7 +17,7 @@ namespace BGSK1.Services
         public static DataTable GetRequests()
         {
             const string sql = @"
-SELECT r.Id, r.RequestNumber, r.CreatedAt, e.InventoryNumber, e.Name AS EquipmentName,
+SELECT r.Id, r.EquipmentId, r.RequestNumber, r.CreatedAt, e.InventoryNumber, e.Name AS EquipmentName,
        r.ProblemDescription, r.PriorityName, r.StatusName, r.AssignedTo, r.CompletedAt
 FROM dbo.RepairRequests r
 INNER JOIN dbo.Equipment e ON e.Id = r.EquipmentId

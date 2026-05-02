@@ -12,10 +12,6 @@ namespace BGSK1
         private readonly CheckBox _chkLowStock;
         private readonly CheckBox _chkSoonStock;
         private readonly TextBox _txtSearch;
-        private readonly TextBox _txtName;
-        private readonly TextBox _txtNumber;
-        private readonly NumericUpDown _numQty;
-        private readonly NumericUpDown _numMin;
 
         public PartsForm()
         {
@@ -28,16 +24,21 @@ namespace BGSK1
                 Shown += (s, e) => { MessageBox.Show("Нет доступа к модулю.", "Доступ запрещен", MessageBoxButtons.OK, MessageBoxIcon.Warning); Close(); };
             }
 
-            var card = new GroupBox { Dock = DockStyle.Top, Height = 116, Text = "  Карточка запчасти  " };
-            _txtName = new TextBox { Left = 12, Top = 48, Width = 250 };
-            _txtNumber = new TextBox { Left = 268, Top = 48, Width = 160 };
-            _numQty = new NumericUpDown { Left = 434, Top = 48, Width = 110, Minimum = 0, Maximum = 100000, Value = 1 };
-            _numMin = new NumericUpDown { Left = 550, Top = 48, Width = 110, Minimum = 0, Maximum = 100000, Value = 1 };
-            var btnAdd = new Button { Left = 666, Top = 46, Width = 100, Height = 30, Text = "Добавить" };
-            var btnUpdate = new Button { Left = 770, Top = 46, Width = 100, Height = 30, Text = "Обновить" };
-            var btnWriteOff = new Button { Left = 874, Top = 46, Width = 110, Height = 30, Text = "Списать 1" };
-            var btnDelete = new Button { Left = 770, Top = 80, Width = 214, Height = 26, Text = "Удалить запись" };
-            var btnHelp = new Button { Left = 666, Top = 80, Width = 100, Height = 26, Text = "Справка" };
+            var card = new GroupBox { Dock = DockStyle.Top, Height = 108, Text = "  Склад запчастей  " };
+            var lblHint = new Label
+            {
+                Left = 12,
+                Top = 22,
+                Width = 920,
+                Height = 28,
+                ForeColor = ThemeHelper.MutedText,
+                Text = "Выберите позицию в таблице. Номенклатура и остатки редактируются в формах «Добавить» / «Обновить»; «Списать 1» уменьшает остаток выбранной строки на единицу."
+            };
+            var btnAdd = new Button { Left = 12, Top = 52, Width = 100, Height = 30, Text = "Добавить" };
+            var btnUpdate = new Button { Left = 116, Top = 52, Width = 100, Height = 30, Text = "Обновить" };
+            var btnWriteOff = new Button { Left = 220, Top = 52, Width = 110, Height = 30, Text = "Списать 1" };
+            var btnDelete = new Button { Left = 334, Top = 52, Width = 200, Height = 30, Text = "Удалить запись" };
+            var btnHelp = new Button { Left = 540, Top = 52, Width = 100, Height = 30, Text = "Справка" };
             ThemeHelper.StyleButton(btnAdd, ThemeHelper.Primary);
             ThemeHelper.StyleButton(btnUpdate, ThemeHelper.Secondary);
             ThemeHelper.StyleButton(btnWriteOff, ThemeHelper.Danger);
@@ -48,11 +49,7 @@ namespace BGSK1
             btnWriteOff.Click += BtnWriteOff_Click;
             btnDelete.Click += BtnDelete_Click;
             btnHelp.Click += (s, e) => ModuleHelpProvider.ShowHelp("parts", this);
-            card.Controls.AddRange(new Control[]
-            {
-                LabelAt("Наименование",12,20,250), LabelAt("Артикул",268,20,160), LabelAt("Остаток",434,20,110), LabelAt("Мин. остаток",550,20,110),
-                _txtName,_txtNumber,_numQty,_numMin,btnAdd,btnUpdate,btnWriteOff,btnDelete,btnHelp
-            });
+            card.Controls.AddRange(new Control[] { lblHint, btnAdd, btnUpdate, btnWriteOff, btnDelete, btnHelp });
 
             var top = new Panel { Dock = DockStyle.Top, Height = 46 };
             _chkLowStock = new CheckBox { Left = 12, Top = 14, Width = 252, Text = "Ниже или на минимуме" };
@@ -84,10 +81,11 @@ namespace BGSK1
                 AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
                 RowHeadersVisible = false,
                 AllowUserToAddRows = false,
-                AllowUserToDeleteRows = false
+                AllowUserToDeleteRows = false,
+                SelectionMode = DataGridViewSelectionMode.FullRowSelect
             };
             ThemeHelper.StyleGrid(_grid);
-            _grid.SelectionChanged += Grid_SelectionChanged;
+            _grid.CellDoubleClick += Grid_CellDoubleClick;
 
             Controls.Add(_grid);
             Controls.Add(top);
@@ -126,6 +124,16 @@ namespace BGSK1
                 _grid.DataSource = table;
             }
             GridHeaderMap.Apply(_grid, "parts", "Id");
+        }
+
+        private void Grid_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0)
+            {
+                return;
+            }
+
+            BtnUpdate_Click(sender, e);
         }
 
         private void BtnAdd_Click(object sender, System.EventArgs e)
@@ -198,22 +206,5 @@ namespace BGSK1
             }
         }
 
-        private void Grid_SelectionChanged(object sender, System.EventArgs e)
-        {
-            if (_grid.CurrentRow == null)
-            {
-                return;
-            }
-
-            _txtName.Text = _grid.CurrentRow.Cells["PartName"]?.Value?.ToString() ?? string.Empty;
-            _txtNumber.Text = _grid.CurrentRow.Cells["PartNumber"]?.Value?.ToString() ?? string.Empty;
-            if (_grid.Columns.Contains("QuantityInStock")) _numQty.Value = System.Convert.ToDecimal(_grid.CurrentRow.Cells["QuantityInStock"]?.Value ?? 0);
-            if (_grid.Columns.Contains("MinQuantity")) _numMin.Value = System.Convert.ToDecimal(_grid.CurrentRow.Cells["MinQuantity"]?.Value ?? 0);
-        }
-
-        private static Label LabelAt(string text, int left, int top, int width)
-        {
-            return ThemeHelper.FormFieldLabel(text, left, top, width);
-        }
     }
 }

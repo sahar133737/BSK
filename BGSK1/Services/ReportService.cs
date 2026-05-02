@@ -167,101 +167,104 @@ ORDER BY r.CreatedAt DESC;";
             const int pageWidth = 1754;   // A4 landscape @150dpi
             const int pageHeight = 1240;
             const int margin = 56;
-            const int maxColsPerPage = 8;
+            const int footerReserve = 88;
+            const int minColWidth = 52;
 
             var result = new List<byte[]>();
-            var totalColumns = Math.Max(1, table.Columns.Count);
-            var chunkCount = (int)Math.Ceiling(totalColumns / (double)maxColsPerPage);
-            var generationDate = DateTime.Now.ToString("dd.MM.yyyy HH:mm");
-
-            var chunkIndex = 0;
-            for (var startCol = 0; startCol < totalColumns; startCol += maxColsPerPage)
+            var columns = table.Columns.Cast<DataColumn>().ToList();
+            var totalColumns = Math.Max(1, columns.Count);
+            var tableWidth = pageWidth - 2 * margin;
+            var colWidth = Math.Max(minColWidth, tableWidth / totalColumns);
+            if (colWidth * totalColumns > tableWidth)
             {
-                chunkIndex++;
-                var endCol = Math.Min(totalColumns, startCol + maxColsPerPage);
-                var columns = Enumerable.Range(startCol, endCol - startCol).Select(i => table.Columns[i]).ToList();
+                colWidth = tableWidth / totalColumns;
+            }
 
-                var rowIndex = 0;
-                while (rowIndex < table.Rows.Count || (table.Rows.Count == 0 && rowIndex == 0))
+            var useSmallFont = colWidth < 72;
+            var generationDate = DateTime.Now.ToString("dd.MM.yyyy HH:mm");
+            var rowIndex = 0;
+            var pageNum = 0;
+
+            while (rowIndex < table.Rows.Count || (table.Rows.Count == 0 && rowIndex == 0))
+            {
+                pageNum++;
+                using (var bmp = new Bitmap(pageWidth, pageHeight))
+                using (var g = Graphics.FromImage(bmp))
+                using (var fTitle = new Font("Segoe UI", 16f, FontStyle.Bold))
+                using (var fSub = new Font("Segoe UI", 10f, FontStyle.Regular))
+                using (var fHeader = new Font("Segoe UI", useSmallFont ? 8f : 9f, FontStyle.Bold))
+                using (var fCell = new Font("Segoe UI", useSmallFont ? 7f : 8.5f, FontStyle.Regular))
+                using (var borderPen = new Pen(Color.FromArgb(100, 116, 139), 1))
+                using (var headerBack = new SolidBrush(Color.FromArgb(226, 232, 240)))
+                using (var cellBack = new SolidBrush(Color.White))
+                using (var textBrush = new SolidBrush(Color.Black))
                 {
-                    using (var bmp = new Bitmap(pageWidth, pageHeight))
-                    using (var g = Graphics.FromImage(bmp))
-                    using (var fTitle = new Font("Segoe UI", 16f, FontStyle.Bold))
-                    using (var fSub = new Font("Segoe UI", 10f, FontStyle.Regular))
-                    using (var fHeader = new Font("Segoe UI", 9f, FontStyle.Bold))
-                    using (var fCell = new Font("Segoe UI", 8.5f, FontStyle.Regular))
-                    using (var borderPen = new Pen(Color.FromArgb(100, 116, 139), 1))
-                    using (var headerBack = new SolidBrush(Color.FromArgb(226, 232, 240)))
-                    using (var cellBack = new SolidBrush(Color.White))
-                    using (var textBrush = new SolidBrush(Color.Black))
+                    g.Clear(Color.White);
+                    g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+                    g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+
+                    var y = margin;
+                    g.DrawString("ГБПОУ \"Брянский строительный колледж им. Н.Е. Жуковского\"", fTitle, textBrush, margin, y);
+                    y += 34;
+                    g.DrawString(reportTitle, fSub, textBrush, margin, y);
+                    y += 22;
+                    g.DrawString(reportSubtitle, fSub, textBrush, margin, y);
+                    y += 20;
+                    g.DrawString("Дата формирования: " + generationDate, fSub, textBrush, margin, y);
+                    y += 20;
+                    g.DrawString("Страница: " + pageNum, fSub, textBrush, margin, y);
+                    y += 28;
+
+                    var rowHeight = useSmallFont ? 30 : 28;
+
+                    for (var c = 0; c < columns.Count; c++)
                     {
-                        g.Clear(Color.White);
-                        g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
-                        g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                        var x = margin + c * colWidth;
+                        var rect = new Rectangle(x, y, colWidth, rowHeight);
+                        g.FillRectangle(headerBack, rect);
+                        g.DrawRectangle(borderPen, rect);
+                        DrawCellText(g, columns[c].ColumnName, fHeader, textBrush, rect);
+                    }
 
-                        var y = margin;
-                        g.DrawString("ГБПОУ \"Брянский строительный колледж им. Н.Е. Жуковского\"", fTitle, textBrush, margin, y);
-                        y += 34;
-                        g.DrawString(reportTitle, fSub, textBrush, margin, y);
-                        y += 22;
-                        g.DrawString(reportSubtitle, fSub, textBrush, margin, y);
-                        y += 20;
-                        g.DrawString("Дата формирования: " + generationDate, fSub, textBrush, margin, y);
-                        y += 20;
-                        g.DrawString("Лист колонок: " + chunkIndex + "/" + chunkCount, fSub, textBrush, margin, y);
-                        y += 28;
+                    y += rowHeight;
 
-                        var tableWidth = pageWidth - (2 * margin);
-                        var colWidth = tableWidth / Math.Max(1, columns.Count);
-                        var rowHeight = 28;
-
-                        for (var c = 0; c < columns.Count; c++)
-                        {
-                            var x = margin + c * colWidth;
-                            var rect = new Rectangle(x, y, colWidth, rowHeight);
-                            g.FillRectangle(headerBack, rect);
-                            g.DrawRectangle(borderPen, rect);
-                            DrawCellText(g, columns[c].ColumnName, fHeader, textBrush, rect);
-                        }
+                    if (table.Rows.Count == 0)
+                    {
+                        var emptyRect = new Rectangle(margin, y, tableWidth, rowHeight);
+                        g.FillRectangle(cellBack, emptyRect);
+                        g.DrawRectangle(borderPen, emptyRect);
+                        DrawCellText(g, "Нет данных за выбранный период", fCell, textBrush, emptyRect);
                         y += rowHeight;
-
-                        if (table.Rows.Count == 0)
+                        rowIndex++;
+                    }
+                    else
+                    {
+                        while (rowIndex < table.Rows.Count && y + rowHeight + footerReserve <= pageHeight)
                         {
-                            var emptyRect = new Rectangle(margin, y, tableWidth, rowHeight);
-                            g.FillRectangle(cellBack, emptyRect);
-                            g.DrawRectangle(borderPen, emptyRect);
-                            DrawCellText(g, "Нет данных за выбранный период", fCell, textBrush, emptyRect);
+                            for (var c = 0; c < columns.Count; c++)
+                            {
+                                var x = margin + c * colWidth;
+                                var rect = new Rectangle(x, y, colWidth, rowHeight);
+                                g.FillRectangle(cellBack, rect);
+                                g.DrawRectangle(borderPen, rect);
+                                var value = Convert.ToString(table.Rows[rowIndex][columns[c].ColumnName], CultureInfo.CurrentCulture) ?? string.Empty;
+                                DrawCellText(g, value, fCell, textBrush, rect);
+                            }
+
                             y += rowHeight;
                             rowIndex++;
                         }
-                        else
-                        {
-                            while (rowIndex < table.Rows.Count && y + rowHeight + 80 <= pageHeight)
-                            {
-                                for (var c = 0; c < columns.Count; c++)
-                                {
-                                    var x = margin + c * colWidth;
-                                    var rect = new Rectangle(x, y, colWidth, rowHeight);
-                                    g.FillRectangle(cellBack, rect);
-                                    g.DrawRectangle(borderPen, rect);
-                                    var value = Convert.ToString(table.Rows[rowIndex][columns[c].ColumnName], CultureInfo.CurrentCulture) ?? string.Empty;
-                                    DrawCellText(g, value, fCell, textBrush, rect);
-                                }
-                                y += rowHeight;
-                                rowIndex++;
-                            }
-                        }
+                    }
 
-                        y += 26;
-                        g.DrawString("Ответственный за формирование отчета: ____________________", fSub, textBrush, margin, y);
-                        y += 22;
-                        g.DrawString("Подпись: ____________________", fSub, textBrush, margin, y);
+                    y += 26;
+                    g.DrawString("Ответственный за формирование отчета: ____________________", fSub, textBrush, margin, y);
+                    y += 22;
+                    g.DrawString("Подпись: ____________________", fSub, textBrush, margin, y);
 
-                        using (var ms = new MemoryStream())
-                        {
-                            bmp.Save(ms, ImageFormat.Jpeg);
-                            result.Add(ms.ToArray());
-                        }
+                    using (var ms = new MemoryStream())
+                    {
+                        bmp.Save(ms, ImageFormat.Jpeg);
+                        result.Add(ms.ToArray());
                     }
                 }
             }

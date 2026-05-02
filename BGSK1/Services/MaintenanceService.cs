@@ -11,7 +11,7 @@ namespace BGSK1.Services
         public static DataTable GetPlans()
         {
             const string sql = @"
-SELECT p.Id, e.InventoryNumber, e.Name AS EquipmentName, p.MaintenanceType, p.PeriodDays, p.NextDate, p.ResponsiblePerson, p.IsActive
+SELECT p.Id, p.EquipmentId, e.InventoryNumber, e.Name AS EquipmentName, p.MaintenanceType, p.PeriodDays, p.NextDate, p.ResponsiblePerson, p.IsActive
 FROM dbo.MaintenancePlans p
 INNER JOIN dbo.Equipment e ON e.Id = p.EquipmentId
 ORDER BY p.NextDate ASC;";

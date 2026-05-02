@@ -102,6 +102,9 @@ ORDER BY RequestsTotal DESC, TypeName, PriorityName;";
         {
             const string sql = @"
 SELECT
+    mp.Id,
+    mp.EquipmentId,
+    mp.IsActive,
     e.InventoryNumber,
     e.Name AS EquipmentName,
     mp.MaintenanceType,
@@ -123,6 +126,7 @@ INNER JOIN dbo.Equipment e ON e.Id = mp.EquipmentId
 LEFT JOIN dbo.MaintenanceHistory mh ON mh.PlanId = mp.Id AND mh.PerformedAt BETWEEN @From AND @To
 WHERE mp.IsActive = 1 AND e.IsDeleted = 0
 GROUP BY
+    mp.Id, mp.EquipmentId, mp.IsActive,
     e.InventoryNumber, e.Name, mp.MaintenanceType, mp.PeriodDays, mp.NextDate, mp.ResponsiblePerson
 ORDER BY OverdueDays DESC, mp.NextDate;";
             return Db.ExecuteDataTable(
