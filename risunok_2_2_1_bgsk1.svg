@@ -1,0 +1,179 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2400" height="1500" viewBox="0 0 2400 1500">
+  <defs>
+    <style>
+      .box { fill:#fff; stroke:#000; stroke-width:1.2; }
+      .t { font-family:"Times New Roman", serif; font-size:18px; }
+      .th { font-family:"Times New Roman", serif; font-size:18px; font-weight:bold; }
+      .ln { stroke:#000; stroke-width:1.2; fill:none; }
+      .lbl { font-family:"Times New Roman", serif; font-size:14px; }
+      .card { fill:#fff; }
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+      <path d="M0,0 L10,4 L0,8 z" fill="#000"/>
+    </marker>
+  </defs>
+
+  <!-- Tables -->
+  <g>
+    <rect class="box card" x="120" y="80" width="300" height="120"/>
+    <line class="ln" x1="120" y1="110" x2="420" y2="110"/>
+    <text class="th" x="270" y="102" text-anchor="middle">Roles</text>
+    <text class="t" x="132" y="136">Id (PK)</text>
+    <text class="t" x="132" y="159">Name</text>
+    <text class="t" x="132" y="182">AccessLevel</text>
+  </g>
+
+  <g>
+    <rect class="box card" x="520" y="70" width="360" height="165"/>
+    <line class="ln" x1="520" y1="100" x2="880" y2="100"/>
+    <text class="th" x="700" y="92" text-anchor="middle">Users</text>
+    <text class="t" x="532" y="126">Id (PK)</text>
+    <text class="t" x="532" y="149">Email</text>
+    <text class="t" x="532" y="172">PasswordHash</text>
+    <text class="t" x="532" y="195">FullName</text>
+    <text class="t" x="532" y="218">RoleId (FK)</text>
+  </g>
+
+  <g>
+    <rect class="box card" x="980" y="80" width="360" height="140"/>
+    <line class="ln" x1="980" y1="110" x2="1340" y2="110"/>
+    <text class="th" x="1160" y="102" text-anchor="middle">RolePermissions</text>
+    <text class="t" x="992" y="136">Id (PK)</text>
+    <text class="t" x="992" y="159">RoleId (FK)</text>
+    <text class="t" x="992" y="182">PermissionKey</text>
+    <text class="t" x="992" y="205">IsAllowed</text>
+  </g>
+
+  <g>
+    <rect class="box card" x="120" y="360" width="340" height="165"/>
+    <line class="ln" x1="120" y1="390" x2="460" y2="390"/>
+    <text class="th" x="290" y="382" text-anchor="middle">Equipment</text>
+    <text class="t" x="132" y="416">Id (PK)</text>
+    <text class="t" x="132" y="439">InventoryNumber</text>
+    <text class="t" x="132" y="462">Name</text>
+    <text class="t" x="132" y="485">TypeName</text>
+    <text class="t" x="132" y="508">LocationName</text>
+  </g>
+
+  <g>
+    <rect class="box card" x="560" y="340" width="380" height="185"/>
+    <line class="ln" x1="560" y1="370" x2="940" y2="370"/>
+    <text class="th" x="750" y="362" text-anchor="middle">RepairRequests</text>
+    <text class="t" x="572" y="396">Id (PK)</text>
+    <text class="t" x="572" y="419">RequestNumber</text>
+    <text class="t" x="572" y="442">EquipmentId (FK)</text>
+    <text class="t" x="572" y="465">CreatedByUserId (FK)</text>
+    <text class="t" x="572" y="488">StatusName</text>
+  </g>
+
+  <g>
+    <rect class="box card" x="1020" y="360" width="350" height="165"/>
+    <line class="ln" x1="1020" y1="390" x2="1370" y2="390"/>
+    <text class="th" x="1195" y="382" text-anchor="middle">MaintenancePlans</text>
+    <text class="t" x="1032" y="416">Id (PK)</text>
+    <text class="t" x="1032" y="439">EquipmentId (FK)</text>
+    <text class="t" x="1032" y="462">MaintenanceType</text>
+    <text class="t" x="1032" y="485">PeriodDays</text>
+    <text class="t" x="1032" y="508">NextDate</text>
+  </g>
+
+  <g>
+    <rect class="box card" x="1460" y="360" width="330" height="165"/>
+    <line class="ln" x1="1460" y1="390" x2="1790" y2="390"/>
+    <text class="th" x="1625" y="382" text-anchor="middle">SpareParts</text>
+    <text class="t" x="1472" y="416">Id (PK)</text>
+    <text class="t" x="1472" y="439">PartName</text>
+    <text class="t" x="1472" y="462">PartNumber</text>
+    <text class="t" x="1472" y="485">QuantityInStock</text>
+    <text class="t" x="1472" y="508">MinQuantity</text>
+  </g>
+
+  <g>
+    <rect class="box card" x="1020" y="670" width="360" height="145"/>
+    <line class="ln" x1="1020" y1="700" x2="1380" y2="700"/>
+    <text class="th" x="1200" y="692" text-anchor="middle">MaintenanceHistory</text>
+    <text class="t" x="1032" y="726">Id (PK)</text>
+    <text class="t" x="1032" y="749">PlanId (FK)</text>
+    <text class="t" x="1032" y="772">PerformedByUserId (FK)</text>
+    <text class="t" x="1032" y="795">PerformedAt</text>
+  </g>
+
+  <g>
+    <rect class="box card" x="1460" y="670" width="360" height="145"/>
+    <line class="ln" x1="1460" y1="700" x2="1820" y2="700"/>
+    <text class="th" x="1640" y="692" text-anchor="middle">RepairRequestParts</text>
+    <text class="t" x="1472" y="726">Id (PK)</text>
+    <text class="t" x="1472" y="749">RequestId (FK)</text>
+    <text class="t" x="1472" y="772">SparePartId (FK)</text>
+    <text class="t" x="1472" y="795">QuantityUsed</text>
+  </g>
+
+  <g>
+    <rect class="box card" x="220" y="1010" width="330" height="145"/>
+    <line class="ln" x1="220" y1="1040" x2="550" y2="1040"/>
+    <text class="th" x="385" y="1032" text-anchor="middle">AuditLog</text>
+    <text class="t" x="232" y="1066">Id (PK)</text>
+    <text class="t" x="232" y="1089">UserId (FK)</text>
+    <text class="t" x="232" y="1112">TableName</text>
+    <text class="t" x="232" y="1135">OperationType</text>
+  </g>
+
+  <g>
+    <rect class="box card" x="760" y="1010" width="330" height="140"/>
+    <line class="ln" x1="760" y1="1040" x2="1090" y2="1040"/>
+    <text class="th" x="925" y="1032" text-anchor="middle">Reports</text>
+    <text class="t" x="772" y="1066">Id (PK)</text>
+    <text class="t" x="772" y="1089">CreatedByUserID (FK)</text>
+    <text class="t" x="772" y="1112">ReportName</text>
+    <text class="t" x="772" y="1135">ReportType</text>
+  </g>
+
+  <g>
+    <rect class="box card" x="1300" y="1010" width="330" height="140"/>
+    <line class="ln" x1="1300" y1="1040" x2="1630" y2="1040"/>
+    <text class="th" x="1465" y="1032" text-anchor="middle">Backups</text>
+    <text class="t" x="1312" y="1066">Id (PK)</text>
+    <text class="t" x="1312" y="1089">CreatedByUserID (FK)</text>
+    <text class="t" x="1312" y="1112">FileName</text>
+    <text class="t" x="1312" y="1135">CreationDate</text>
+  </g>
+
+  <!-- Connectors with cardinality -->
+  <path class="ln" marker-end="url(#arrow)" d="M420 145 H520"/>
+  <text class="lbl" x="465" y="136">1:N</text>
+
+  <path class="ln" marker-end="url(#arrow)" d="M980 150 H930 V40 H430 V145 H420"/>
+  <text class="lbl" x="640" y="32">1:N</text>
+
+  <path class="ln" marker-end="url(#arrow)" d="M460 440 H560"/>
+  <text class="lbl" x="505" y="430">1:N</text>
+
+  <path class="ln" marker-end="url(#arrow)" d="M460 520 V550 H980 V440 H1020"/>
+  <text class="lbl" x="730" y="464">1:N</text>
+
+  <path class="ln" marker-end="url(#arrow)" d="M700 235 V300 H900 V340"/>
+  <text class="lbl" x="785" y="292">1:N</text>
+
+  <path class="ln" marker-end="url(#arrow)" d="M940 440 V560 H1438 V744 H1460"/>
+  <text class="lbl" x="1170" y="432">1:N</text>
+
+  <path class="ln" marker-end="url(#arrow)" d="M1625 525 V670"/>
+  <text class="lbl" x="1637" y="602">1:N</text>
+
+  <path class="ln" marker-end="url(#arrow)" d="M1195 525 V670"/>
+  <text class="lbl" x="1207" y="602">1:N</text>
+
+  <path class="ln" marker-end="url(#arrow)" d="M520 220 H70 V985 H385 V1010"/>
+  <text class="lbl" x="80" y="978">1:N</text>
+
+  <path class="ln" marker-end="url(#arrow)" d="M880 220 H1880 V985 H925 V1010"/>
+  <text class="lbl" x="1180" y="978">1:N</text>
+
+  <path class="ln" marker-end="url(#arrow)" d="M880 210 H1960 V985 H1465 V1010"/>
+  <text class="lbl" x="1360" y="978">1:N</text>
+
+  <path class="ln" marker-end="url(#arrow)" d="M880 210 H1900 V640 H1200 V670"/>
+  <text class="lbl" x="1455" y="632">1:N</text>
+
+  <text class="lbl" x="1520" y="645">M:N (RepairRequests ↔ SpareParts через RepairRequestParts)</text>
+</svg>

@@ -425,6 +425,29 @@ WHEN NOT MATCHED THEN
 INSERT (RoleId, PermissionKey, IsAllowed) VALUES (source.RoleId, source.PermissionKey, 1);
 GO
 
+/* Доп. права по заявкам: назначение исполнителя и удаление (по умолчанию — нет у оператора). */
+MERGE dbo.RolePermissions AS target
+USING (
+    SELECT r.Id AS RoleId, p.PermissionKey, p.IsAllowed
+    FROM dbo.Roles r
+    INNER JOIN (VALUES
+        (N'Администратор', N'requests.assign_executor', CAST(1 AS BIT)),
+        (N'Администратор', N'requests.delete', CAST(1 AS BIT)),
+        (N'Аналитик', N'requests.assign_executor', CAST(1 AS BIT)),
+        (N'Аналитик', N'requests.delete', CAST(1 AS BIT)),
+        (N'Оператор', N'requests.assign_executor', CAST(0 AS BIT)),
+        (N'Оператор', N'requests.delete', CAST(0 AS BIT))
+    ) AS p(RoleName, PermissionKey, IsAllowed)
+        ON r.Name = p.RoleName AND r.IsDeleted = 0
+) AS source
+ON target.RoleId = source.RoleId AND target.PermissionKey = source.PermissionKey
+WHEN MATCHED THEN
+    UPDATE SET IsAllowed = source.IsAllowed
+WHEN NOT MATCHED BY TARGET THEN
+    INSERT (RoleId, PermissionKey, IsAllowed)
+    VALUES (source.RoleId, source.PermissionKey, source.IsAllowed);
+GO
+
 IF NOT EXISTS (SELECT 1 FROM dbo.Equipment)
 BEGIN
     INSERT INTO dbo.Equipment (InventoryNumber, Name, TypeName, LocationName, ResponsiblePerson, StatusName, IsDeleted)

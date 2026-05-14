@@ -119,6 +119,8 @@ namespace BGSK1
             {
                 case "module.equipment": return "Техника";
                 case "module.requests": return "Заявки";
+                case "requests.assign_executor": return "Заявки: назначение исполнителя";
+                case "requests.delete": return "Заявки: удаление";
                 case "module.maintenance": return "Плановое ТО";
                 case "module.parts": return "Склад запчастей";
                 case "module.reports": return "Отчеты";

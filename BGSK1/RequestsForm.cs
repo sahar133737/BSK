@@ -25,6 +25,8 @@ namespace BGSK1
         private readonly NumericUpDown _numQty;
         private readonly Label _lblRequestPartsSummary;
 
+        private readonly Button _btnDeleteRequest;
+
         public RequestsForm()
         {
             ThemeHelper.ApplyForm(this, "Заявки на ремонт");
@@ -49,19 +51,20 @@ namespace BGSK1
             var btnCreate = new Button { Left = 12, Top = 58, Width = 100, Height = 30, Text = "Создать" };
             var btnUpdate = new Button { Left = 118, Top = 58, Width = 100, Height = 30, Text = "Изменить" };
             var btnClose = new Button { Left = 224, Top = 58, Width = 110, Height = 30, Text = "Закрыть" };
-            var btnDelete = new Button { Left = 340, Top = 58, Width = 120, Height = 30, Text = "Удалить" };
+            _btnDeleteRequest = new Button { Left = 340, Top = 58, Width = 120, Height = 30, Text = "Удалить" };
             var btnHelp = new Button { Left = 466, Top = 58, Width = 100, Height = 30, Text = "Справка" };
             ThemeHelper.StyleButton(btnCreate, ThemeHelper.Primary);
             ThemeHelper.StyleButton(btnUpdate, ThemeHelper.Secondary);
             ThemeHelper.StyleButton(btnClose, ThemeHelper.Success);
-            ThemeHelper.StyleButton(btnDelete, ThemeHelper.Danger);
+            ThemeHelper.StyleButton(_btnDeleteRequest, ThemeHelper.Danger);
             ThemeHelper.StyleButton(btnHelp, ThemeHelper.Accent);
             btnCreate.Click += BtnCreateRequest_Click;
             btnUpdate.Click += BtnUpdateRequest_Click;
             btnClose.Click += BtnCloseRequest_Click;
-            btnDelete.Click += BtnDeleteRequest_Click;
+            _btnDeleteRequest.Click += BtnDeleteRequest_Click;
             btnHelp.Click += (s, e) => ModuleHelpProvider.ShowHelp("requests", this);
-            toolbar.Controls.AddRange(new Control[] { lblHint, btnCreate, btnUpdate, btnClose, btnDelete, btnHelp });
+            _btnDeleteRequest.Enabled = RolePermissionService.HasPermission("requests.delete");
+            toolbar.Controls.AddRange(new Control[] { lblHint, btnCreate, btnUpdate, btnClose, _btnDeleteRequest, btnHelp });
 
             var filterPanel = new Panel { Dock = DockStyle.Top, Height = 44 };
             _cmbFilterStatus = new ComboBox { Left = 12, Top = 9, Width = 170, DropDownStyle = ComboBoxStyle.DropDownList };
@@ -762,7 +765,16 @@ namespace BGSK1
             }
 
             var id = Convert.ToInt32(_gridRequests.CurrentRow.Cells["Id"].Value);
-            RepairRequestService.DeleteRequest(id);
+            try
+            {
+                RepairRequestService.DeleteRequest(id);
+            }
+            catch (InvalidOperationException ex)
+            {
+                MessageBox.Show(ex.Message, "Доступ запрещён", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             LoadRequests();
         }
 

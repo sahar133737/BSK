@@ -417,6 +417,7 @@ namespace BGSK1
         private void MainForm_Load(object sender, EventArgs e)
         {
             _lblUser.Text = $"Пользователь: {CurrentUserContext.FullName} ({CurrentUserContext.RoleName})";
+            _txtAssigned.ReadOnly = !RolePermissionService.HasPermission("requests.assign_executor");
             ReloadAll();
         }
 

@@ -32,6 +32,10 @@ INSERT INTO dbo.RepairRequests (RequestNumber, EquipmentId, ProblemDescription, 
 VALUES (@RequestNumber, @EquipmentId, @ProblemDescription, @PriorityName, N'Новая', @CreatedByUserId, @AssignedTo);
 SELECT SCOPE_IDENTITY();";
 
+            var assign = RolePermissionService.HasPermission("requests.assign_executor") && !string.IsNullOrWhiteSpace(assignedTo)
+                ? assignedTo.Trim()
+                : null;
+
             var requestNumber = "REQ-" + DateTime.Now.ToString("yyyyMMdd-HHmmss");
             var id = Convert.ToInt32(Db.ExecuteScalar(
                 sql,
@@ -40,13 +44,15 @@ SELECT SCOPE_IDENTITY();";
                 new SqlParameter("@ProblemDescription", problem),
                 new SqlParameter("@PriorityName", priority),
                 new SqlParameter("@CreatedByUserId", CurrentUserContext.UserId),
-                new SqlParameter("@AssignedTo", (object)assignedTo ?? DBNull.Value)));
+                new SqlParameter("@AssignedTo", (object)assign ?? DBNull.Value)));
 
             AuditService.LogChange("RepairRequests", "INSERT", id.ToString(), null, $"{{\"RequestNumber\":\"{requestNumber}\"}}");
         }
 
         public static void UpdateRequestStatus(int id, string statusName, string assignedTo)
         {
+            var assignParam = ResolveAssignedToParameter(id, assignedTo);
+
             const string sql = @"
 UPDATE dbo.RepairRequests
 SET StatusName = @StatusName,
@@ -57,7 +63,7 @@ WHERE Id = @Id;";
             Db.ExecuteNonQuery(
                 sql,
                 new SqlParameter("@StatusName", statusName),
-                new SqlParameter("@AssignedTo", (object)assignedTo ?? DBNull.Value),
+                assignParam,
                 new SqlParameter("@Id", id));
 
             AuditService.LogChange("RepairRequests", "UPDATE", id.ToString(), null, $"{{\"StatusName\":\"{statusName}\"}}");
@@ -65,6 +71,8 @@ WHERE Id = @Id;";
 
         public static void UpdateRequest(int id, int equipmentId, string problemDescription, string priorityName, string statusName, string assignedTo)
         {
+            var assignParam = ResolveAssignedToParameter(id, assignedTo);
+
             const string sql = @"
 UPDATE dbo.RepairRequests
 SET EquipmentId = @EquipmentId,
@@ -81,7 +89,7 @@ WHERE Id = @Id;";
                 new SqlParameter("@ProblemDescription", problemDescription),
                 new SqlParameter("@PriorityName", priorityName),
                 new SqlParameter("@StatusName", statusName),
-                new SqlParameter("@AssignedTo", (object)assignedTo ?? DBNull.Value),
+                assignParam,
                 new SqlParameter("@Id", id));
 
             AuditService.LogChange("RepairRequests", "UPDATE", id.ToString(), null, $"{{\"PriorityName\":\"{priorityName}\",\"StatusName\":\"{statusName}\"}}");
@@ -89,9 +97,28 @@ WHERE Id = @Id;";
 
         public static void DeleteRequest(int id)
         {
+            if (!RolePermissionService.HasPermission("requests.delete"))
+            {
+                throw new InvalidOperationException("Удаление заявок доступно только ролям с правом «Удаление заявок» (администратор и аналитик).");
+            }
+
             RepairRequestPartsService.RemoveAllByRequest(id);
             Db.ExecuteNonQuery("DELETE FROM dbo.RepairRequests WHERE Id=@Id;", new SqlParameter("@Id", id));
             AuditService.LogChange("RepairRequests", "DELETE", id.ToString(), null, "{\"Deleted\":\"permanent\"}");
+        }
+
+        /// <summary>Если у пользователя нет права назначать исполнителя, в БД сохраняется текущее значение AssignedTo.</summary>
+        private static SqlParameter ResolveAssignedToParameter(int requestId, string assignedToFromClient)
+        {
+            if (RolePermissionService.HasPermission("requests.assign_executor"))
+            {
+                return new SqlParameter("@AssignedTo", string.IsNullOrWhiteSpace(assignedToFromClient) ? (object)DBNull.Value : assignedToFromClient.Trim());
+            }
+
+            var current = Db.ExecuteScalar(
+                "SELECT AssignedTo FROM dbo.RepairRequests WHERE Id = @Id;",
+                new SqlParameter("@Id", requestId));
+            return new SqlParameter("@AssignedTo", current ?? (object)DBNull.Value);
         }
     }
 }

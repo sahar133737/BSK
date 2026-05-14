@@ -41,6 +41,8 @@ WITH AllPermissions AS
 (
     SELECT N'module.equipment' AS PermissionKey, 10 AS SortOrder UNION ALL
     SELECT N'module.requests', 20 UNION ALL
+    SELECT N'requests.assign_executor', 21 UNION ALL
+    SELECT N'requests.delete', 22 UNION ALL
     SELECT N'module.maintenance', 30 UNION ALL
     SELECT N'module.parts', 40 UNION ALL
     SELECT N'module.users', 50 UNION ALL

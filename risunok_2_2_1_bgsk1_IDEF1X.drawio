@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" version="22.1.0">
+  <diagram name="ER-diagram BGSK1 (IDEF1X)" id="bgsk1_er_en">
+    <mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1420" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Left stack: Roles, RolePermissions, Equipment, SpareParts (x 40–360) -->
+        <mxCell id="Roles" value="Roles" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;strokeColor=#000000;fillColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="230" height="130" as="geometry"/>
+        </mxCell>
+        <mxCell id="Roles_pk" value="Id (PK)" style="shape=partialRectangle;top=0;left=0;right=0;bottom=1;fontStyle=5;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Roles">
+          <mxGeometry y="26" width="230" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="Roles_Name" value="Name" style="shape=partialRectangle;top=0;left=0;right=0;bottom=0;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Roles">
+          <mxGeometry y="52" width="230" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="Roles_Access" value="AccessLevel" style="shape=partialRectangle;top=0;left=0;right=0;bottom=0;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Roles">
+          <mxGeometry y="78" width="230" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="Roles_Del" value="IsDeleted" style="shape=partialRectangle;top=0;left=0;right=0;bottom=0;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Roles">
+          <mxGeometry y="104" width="230" height="26" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="RolePermissions" value="RolePermissions" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;strokeColor=#000000;fillColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="40" y="190" width="250" height="130" as="geometry"/>
+        </mxCell>
+        <mxCell id="RolePermissions_pk" value="Id (PK)" style="shape=partialRectangle;top=0;left=0;right=0;bottom=1;fontStyle=5;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="RolePermissions">
+          <mxGeometry y="26" width="250" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="RolePermissions_RoleFK" value="RoleId (FK)" style="shape=partialRectangle;top=0;left=0;right=0;bottom=0;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontStyle=2;" vertex="1" parent="RolePermissions">
+          <mxGeometry y="52" width="250" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="RolePermissions_Key" value="PermissionKey" style="shape=partialRectangle;top=0;left=0;right=0;bottom=0;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="RolePermissions">
+          <mxGeometry y="78" width="250" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="RolePermissions_Allowed" value="IsAllowed" style="shape=partialRectangle;top=0;left=0;right=0;bottom=0;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="RolePermissions">
+          <mxGeometry y="104" width="250" height="26" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="Equipment" value="Equipment" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;strokeColor=#000000;fillColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="40" y="380" width="320" height="234" as="geometry"/>
+        </mxCell>
+        <mxCell id="Equipment_pk" value="Id (PK)" style="shape=partialRectangle;top=0;left=0;right=0;bottom=1;fontStyle=5;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Equipment">
+          <mxGeometry y="26" width="320" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="Equipment_Inv" value="InventoryNumber" style="shape=partialRectangle;top=0;left=0;right=0;bottom=0;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Equipment">
+          <mxGeometry y="52" width="320" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="Equipment_Name" value="Name" style="shape=partialRectangle;top=0;left=0;right=0;bottom=0;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Equipment">
+          <mxGeometry y="78" width="320" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="Equipment_Type" value="TypeName" style="shape=partialRectangle;top=0;left=0;right=0;bottom=0;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Equipment">
+          <mxGeometry y="104" width="320" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="Equipment_Loc" value="LocationName" style="shape=partialRectangle;top=0;left=0;right=0;bottom=0;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Equipment">
+          <mxGeometry y="130" width="320" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="Equipment_Status" value="StatusName" style="shape=partialRectangle;top=0;left=0;right=0;bottom=0;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Equipment">
+          <mxGeometry y="156" width="320" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="Equipment_Del" value="IsDeleted" style="shape=partialRectangle;top=0;left=0;right=0;bottom=0;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Equipment">
+          <mxGeometry y="182" width="320" height="26" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="SpareParts" value="SpareParts" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;strokeColor=#000000;fillColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="40" y="780" width="280" height="156" as="geometry"/>
+        </mxCell>
+        <mxCell id="SpareParts_pk" value="Id (PK)" style="shape=partialRectangle;top=0;left=0;right=0;bottom=1;fontStyle=5;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="SpareParts">
+          <mxGeometry y="26" width="280" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="SpareParts_Name" value="PartName" style="shape=partialRectangle;top=0;left=0;right=0;bottom=0;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="SpareParts">
+          <mxGeometry y="52" width="280" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="SpareParts_Num" value="PartNumber" style="shape=partialRectangle;top=0;left=0;right=0;bottom=0;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="SpareParts">
+          <mxGeometry y="78" width="280" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="SpareParts_Qty" value="QuantityInStock" style="shape=partialRectangle;top=0;left=0;right=0;bottom=0;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="SpareParts">
+          <mxGeometry y="104" width="280" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="SpareParts_Min" value="MinQuantity" style="shape=partialRectangle;top=0;left=0;right=0;bottom=0;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="SpareParts">
+          <mxGeometry y="130" width="280" height="26" as="geometry"/>
+        </mxCell>
+
+        <!-- Center column: Users above RepairRequests above RepairRequestParts (x 420–860) -->
+        <mxCell id="Users" value="Users" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;strokeColor=#000000;fillColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="420" y="40" width="340" height="260" as="geometry"/>
+        </mxCell>
+        <mxCell id="Users_pk" value="Id (PK)" style="shape=partialRectangle;top=0;left=0;right=0;bottom=1;fontStyle=5;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Users">
+          <mxGeometry y="26" width="340" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="Users_Email" value="Email" style="shape=partialRectangle;top=0;left=0;right=0;bottom=0;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Users">
+          <mxGeometry y="52" width="340" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="Users_Pwd" value="PasswordHash" style="shape=partialRectangle;top=0;left=0;right=0;bottom=0;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Users">
+          <mxGeometry y="78" width="340" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="Users_FullName" value="FullName" style="shape=partialRectangle;top=0;left=0;right=0;bottom=0;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Users">
+          <mxGeometry y="104" width="340" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="Users_RoleFK" value="RoleId (FK)" style="shape=partialRectangle;top=0;left=0;right=0;bottom=0;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontStyle=2;" vertex="1" parent="Users">
+          <mxGeometry y="130" width="340" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="Users_Reg" value="RegistrationDate" style="shape=partialRectangle;top=0;left=0;right=0;bottom=0;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Users">
+          <mxGeometry y="156" width="340" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="Users_Active" value="IsActive" style="shape=partialRectangle;top=0;left=0;right=0;bottom=0;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Users">
+          <mxGeometry y="182" width="340" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="Users_Deleted" value="IsDeleted" style="shape=partialRectangle;top=0;left=0;right=0;bottom=0;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Users">
+          <mxGeometry y="208" width="340" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="Users_MustPwd" value="MustChangePassword" style="shape=partialRectangle;top=0;left=0;right=0;bottom=0;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Users">
+          <mxGeometry y="234" width="340" height="26" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="RepairRequests" value="RepairRequests" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;strokeColor=#000000;fillColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="420" y="360" width="400" height="260" as="geometry"/>
+        </mxCell>
+        <mxCell id="RepairRequests_pk" value="Id (PK)" style="shape=partialRectangle;top=0;left=0;right=0;bottom=1;fontStyle=5;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="RepairRequests">
+          <mxGeometry y="26" width="400" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="RepairRequests_Num" value="RequestNumber" style="shape=partialRectangle;top=0;left=0;right=0;bottom=0;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="RepairRequests">
+          <mxGeometry y="52" width="400" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="RepairRequests_EqFK" value="EquipmentId (FK)" style="shape=partialRectangle;top=0;left=0;right=0;bottom=0;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontStyle=2;" vertex="1" parent="RepairRequests">
+          <mxGeometry y="78" width="400" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="RepairRequests_Prob" value="ProblemDescription" style="shape=partialRectangle;top=0;left=0;right=0;bottom=0;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="RepairRequests">
+          <mxGeometry y="104" width="400" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="RepairRequests_Pri" value="PriorityName" style="shape=partialRectangle;top=0;left=0;right=0;bottom=0;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="RepairRequests">
+          <mxGeometry y="130" width="400" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="RepairRequests_St" value="StatusName" style="shape=partialRectangle;top=0;left=0;right=0;bottom=0;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="RepairRequests">
+          <mxGeometry y="156" width="400" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="RepairRequests_CreatorFK" value="CreatedByUserId (FK)" style="shape=partialRectangle;top=0;left=0;right=0;bottom=0;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontStyle=2;" vertex="1" parent="RepairRequests">
+          <mxGeometry y="182" width="400" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="RepairRequests_Assign" value="AssignedTo" style="shape=partialRectangle;top=0;left=0;right=0;bottom=0;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="RepairRequests">
+          <mxGeometry y="208" width="400" height="26" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="RepairRequestParts" value="RepairRequestParts" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;strokeColor=#000000;fillColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="420" y="620" width="400" height="130" as="geometry"/>
+        </mxCell>
+        <mxCell id="RRP_pk" value="Id (PK)" style="shape=partialRectangle;top=0;left=0;right=0;bottom=1;fontStyle=5;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="RepairRequestParts">
+          <mxGeometry y="26" width="400" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="RRP_ReqFK" value="RequestId (FK)" style="shape=partialRectangle;top=0;left=0;right=0;bottom=0;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontStyle=2;" vertex="1" parent="RepairRequestParts">
+          <mxGeometry y="52" width="400" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="RRP_PartFK" value="SparePartId (FK)" style="shape=partialRectangle;top=0;left=0;right=0;bottom=0;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontStyle=2;" vertex="1" parent="RepairRequestParts">
+          <mxGeometry y="78" width="400" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="RRP_Qty" value="QuantityUsed" style="shape=partialRectangle;top=0;left=0;right=0;bottom=0;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="RepairRequestParts">
+          <mxGeometry y="104" width="400" height="26" as="geometry"/>
+        </mxCell>
+
+        <!-- Right column: MaintenancePlans, MaintenanceHistory (x 900+) -->
+        <mxCell id="MaintenancePlans" value="MaintenancePlans" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;strokeColor=#000000;fillColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="900" y="360" width="300" height="182" as="geometry"/>
+        </mxCell>
+        <mxCell id="MaintenancePlans_pk" value="Id (PK)" style="shape=partialRectangle;top=0;left=0;right=0;bottom=1;fontStyle=5;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="MaintenancePlans">
+          <mxGeometry y="26" width="300" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="MaintenancePlans_EqFK" value="EquipmentId (FK)" style="shape=partialRectangle;top=0;left=0;right=0;bottom=0;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontStyle=2;" vertex="1" parent="MaintenancePlans">
+          <mxGeometry y="52" width="300" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="MaintenancePlans_Type" value="MaintenanceType" style="shape=partialRectangle;top=0;left=0;right=0;bottom=0;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="MaintenancePlans">
+          <mxGeometry y="78" width="300" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="MaintenancePlans_Period" value="PeriodDays" style="shape=partialRectangle;top=0;left=0;right=0;bottom=0;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="MaintenancePlans">
+          <mxGeometry y="104" width="300" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="MaintenancePlans_Next" value="NextDate" style="shape=partialRectangle;top=0;left=0;right=0;bottom=0;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="MaintenancePlans">
+          <mxGeometry y="130" width="300" height="26" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="MaintenanceHistory" value="MaintenanceHistory" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;strokeColor=#000000;fillColor=#ffffff;" vertex="1" parent="1">
+          <mxGeometry x="900" y="780" width="320" height="130" as="geometry"/>
+        </mxCell>
+        <mxCell id="MH_pk" value="Id (PK)" style="shape=partialRectangle;top=0;left=0;right=0;bottom=1;fontStyle=5;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="MaintenanceHistory">
+          <mxGeometry y="26" width="320" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="MH_PlanFK" value="PlanId (FK)" style="shape=partialRectangle;top=0;left=0;right=0;bottom=0;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontStyle=2;" vertex="1" parent="MaintenanceHistory">
+          <mxGeometry y="52" width="320" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="MH_UserFK" value="PerformedByUserId (FK)" style="shape=partialRectangle;top=0;left=0;right=0;bottom=0;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontStyle=2;" vertex="1" parent="MaintenanceHistory">
+          <mxGeometry y="78" width="320" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="MH_Comment" value="ResultComment" style="shape=partialRectangle;top=0;left=0;right=0;bottom=0;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="MaintenanceHistory">
+          <mxGeometry y="104" width="320" height="26" as="geometry"/>
+        </mxCell>
+
+        <!-- Routing buses: x=390 between Equipment and RR; x=870 between RR and MP; top y=12 for Users FK returns -->
+        <mxCell id="e_Users_Roles" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=0;jettySize=auto;html=1;strokeColor=#000000;endArrow=none;startArrow=none;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" edge="1" parent="1" source="Users_RoleFK" target="Roles_pk">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="330" y="183"/>
+              <mxPoint x="330" y="79"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="e_RP_Roles" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=0;jettySize=auto;html=1;strokeColor=#000000;endArrow=none;startArrow=none;exitX=0.5;exitY=0;entryX=0.5;entryY=1;" edge="1" parent="1" source="RolePermissions_RoleFK" target="Roles_pk">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="e_RR_Equipment" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=0;jettySize=auto;html=1;strokeColor=#000000;endArrow=none;startArrow=none;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" edge="1" parent="1" source="RepairRequests_EqFK" target="Equipment_pk">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="390" y="477"/>
+              <mxPoint x="390" y="419"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="e_RR_Users" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=0;jettySize=auto;html=1;strokeColor=#000000;endArrow=none;startArrow=none;exitX=1;exitY=0.5;entryX=1;entryY=0.5;jumpStyle=arc;" edge="1" parent="1" source="RepairRequests_CreatorFK" target="Users_pk">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="850" y="568"/>
+              <mxPoint x="850" y="12"/>
+              <mxPoint x="600" y="12"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="e_MP_Equipment" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=0;jettySize=auto;html=1;strokeColor=#000000;endArrow=none;startArrow=none;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" edge="1" parent="1" source="MaintenancePlans_EqFK" target="Equipment_pk">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="870" y="424"/>
+              <mxPoint x="870" y="335"/>
+              <mxPoint x="390" y="335"/>
+              <mxPoint x="390" y="419"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="e_RRP_RR" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=0;jettySize=auto;html=1;strokeColor=#000000;endArrow=none;startArrow=none;exitX=0.5;exitY=0;entryX=0.5;entryY=1;" edge="1" parent="1" source="RRP_ReqFK" target="RepairRequests_pk">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="e_RRP_SP" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=0;jettySize=auto;html=1;strokeColor=#000000;endArrow=none;startArrow=none;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" edge="1" parent="1" source="RRP_PartFK" target="SpareParts_pk">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="380" y="737"/>
+              <mxPoint x="380" y="325"/>
+              <mxPoint x="370" y="325"/>
+              <mxPoint x="370" y="819"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="e_MH_MP" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=0;jettySize=auto;html=1;strokeColor=#000000;endArrow=none;startArrow=none;exitX=0;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="MH_PlanFK" target="MaintenancePlans_pk">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="880" y="871"/>
+              <mxPoint x="880" y="399"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="e_MH_Users" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=0;jettySize=auto;html=1;strokeColor=#000000;endArrow=none;startArrow=none;exitX=1;exitY=0.5;entryX=1;entryY=0.5;jumpStyle=arc;" edge="1" parent="1" source="MH_UserFK" target="Users_pk">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1260" y="897"/>
+              <mxPoint x="1260" y="28"/>
+              <mxPoint x="600" y="28"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="c_N_UR" value="N" style="text;html=1;strokeColor=none;fillColor=none;fontSize=10;align=center;" vertex="1" parent="1">
+          <mxGeometry x="350" y="168" width="20" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="c_1_UR" value="1" style="text;html=1;strokeColor=none;fillColor=none;fontSize=10;align=center;" vertex="1" parent="1">
+          <mxGeometry x="288" y="168" width="20" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="c_N_RP" value="N" style="text;html=1;strokeColor=none;fillColor=none;fontSize=10;align=center;" vertex="1" parent="1">
+          <mxGeometry x="150" y="168" width="20" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="c_1_RP" value="1" style="text;html=1;strokeColor=none;fillColor=none;fontSize=10;align=center;" vertex="1" parent="1">
+          <mxGeometry x="150" y="128" width="20" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="c_MN" value="M:N" style="text;html=1;strokeColor=none;fillColor=none;fontSize=10;align=center;" vertex="1" parent="1">
+          <mxGeometry x="580" y="618" width="40" height="20" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

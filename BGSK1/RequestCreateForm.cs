@@ -1,4 +1,5 @@
 using System;
+using System.Data;
 using System.Windows.Forms;
 using BGSK1.Services;
 using BGSK1.UI;
@@ -52,10 +53,24 @@ namespace BGSK1
             _cmbEquipment.DisplayMember = "DisplayName";
             _cmbEquipment.ValueMember = "Id";
 
-            var assignees = UserService.GetActiveUsersLookup();
-            _cmbAssigned.DataSource = assignees;
-            _cmbAssigned.DisplayMember = "FullName";
-            _cmbAssigned.ValueMember = "FullName";
+            if (RolePermissionService.HasPermission("requests.assign_executor"))
+            {
+                var assignees = UserService.GetActiveUsersLookup();
+                _cmbAssigned.DataSource = assignees;
+                _cmbAssigned.DisplayMember = "FullName";
+                _cmbAssigned.ValueMember = "FullName";
+                _cmbAssigned.Enabled = true;
+            }
+            else
+            {
+                var empty = new DataTable();
+                empty.Columns.Add("Id", typeof(int));
+                empty.Columns.Add("FullName", typeof(string));
+                _cmbAssigned.DataSource = empty;
+                _cmbAssigned.DisplayMember = "FullName";
+                _cmbAssigned.ValueMember = "FullName";
+                _cmbAssigned.Enabled = false;
+            }
         }
 
         private void BtnCreate_Click(object sender, EventArgs e)
